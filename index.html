@@ -1,0 +1,1327 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Angličtina s Katkou – prototyp 4B</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --brand: #c42040;
+    --brand-dark: #9e1832;
+    --brand-soft: #ffe3e8;
+    --tint: #fff5f7;
+    --line: #f2d3d8;
+    --bg: #ffffff;
+    --fg: #1d1d22;
+    --muted: #5f5f6b;
+    --ink: #2a1a20;
+    --note-bg: #fff6c2;
+    --note-line: #e6c84a;
+    --radius: 16px;
+    --shadow: 0 8px 28px rgba(196, 32, 64, .10);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.6 "Open Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding-bottom: 78px;
+  }
+  a { color: var(--brand); }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 0 16px; }
+  section { padding: 44px 0; }
+  h1, h2, h3 { line-height: 1.2; margin: 0 0 12px; text-wrap: balance; }
+  h1 { font-size: clamp(29px, 7.6vw, 46px); font-weight: 800; letter-spacing: -.5px; }
+  h2 { font-size: clamp(23px, 5.6vw, 32px); font-weight: 800; }
+  h3 { font-size: 19px; font-weight: 700; }
+  p { margin: 0 0 12px; }
+  .lead { font-size: 18px; color: var(--muted); }
+  .eyebrow { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--brand); margin-bottom: 8px; }
+  .center { text-align: center; }
+  .tint { background: var(--tint); }
+  .muted { color: var(--muted); }
+  .small { font-size: 14px; }
+
+  /* Tlačítka */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 50px; padding: 12px 24px; border-radius: 999px;
+    font: inherit; font-weight: 700; text-decoration: none; text-align: center;
+    border: 2px solid transparent; cursor: pointer;
+  }
+  .btn-primary { background: var(--brand); color: #fff; box-shadow: 0 6px 16px rgba(196,32,64,.25); }
+  .btn-primary:hover { background: var(--brand-dark); }
+  .btn-secondary { background: #fff; color: var(--brand); border-color: var(--brand); }
+  .btn-secondary:hover { background: var(--brand-soft); }
+  .btn-light { background: #fff; color: var(--brand-dark); }
+  .btn-block { width: 100%; }
+  .actions { display: grid; gap: 10px; margin: 20px 0 16px; }
+
+  /* Lišta prototypu a poznámky */
+  .proto-bar { background: #222; color: #fff; font-size: 13px; padding: 8px 0; }
+  .proto-bar .wrap { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .proto-bar button { background: #fff; color: #222; border: 0; border-radius: 999px; padding: 5px 12px; font: inherit; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .note {
+    display: none; background: var(--note-bg); border-left: 4px solid var(--note-line);
+    color: #4a3f10; font-size: 14px; padding: 10px 12px; border-radius: 8px; margin: 0 0 18px; text-align: left;
+  }
+  .note::before { content: "Poznámka: "; font-weight: 800; }
+  body.show-notes .note { display: block; }
+  .todo { background: var(--note-bg); border-radius: 4px; padding: 0 4px; }
+  .money { display: none; background: var(--note-bg); border-bottom: 1px solid var(--note-line); color: #4a3f10; font-size: 14px; padding: 16px 0; }
+  body.show-notes .money { display: block; }
+  .money table { border-collapse: collapse; width: 100%; margin-top: 8px; }
+  .money th, .money td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--note-line); vertical-align: top; }
+
+  /* Hlavička */
+  header { position: sticky; top: 0; z-index: 20; background: rgba(255,255,255,.96); backdrop-filter: blur(6px); border-bottom: 1px solid var(--line); }
+  .bar { display: flex; align-items: center; justify-content: space-between; height: 62px; gap: 12px; }
+  .logo { font-weight: 800; font-size: 18px; color: var(--fg); text-decoration: none; white-space: nowrap; }
+  .logo span { color: var(--brand); }
+  nav ul { list-style: none; margin: 0; padding: 0; display: none; gap: 20px; }
+  nav a { color: var(--fg); text-decoration: none; font-weight: 600; font-size: 15px; padding: 6px 0; border-bottom: 2px solid transparent; }
+  nav a.active { color: var(--brand); border-color: var(--brand); }
+  .menu-btn { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 8px 14px; font: inherit; font-weight: 700; cursor: pointer; color: var(--fg); }
+  .menu { display: none; border-top: 1px solid var(--line); padding: 4px 16px 16px; background: #fff; }
+  .menu.open { display: block; }
+  .menu a { display: block; padding: 13px 0; color: var(--fg); text-decoration: none; font-weight: 600; border-bottom: 1px solid var(--line); }
+  .menu a.active { color: var(--brand); }
+  .header-cta { display: none; min-height: 42px; padding: 8px 18px; font-size: 15px; }
+
+  /* Stránky */
+  .page { display: none; }
+  .page.on { display: block; }
+  .page-head { background: linear-gradient(180deg, #ffebeb, #fff); padding: 36px 0 20px; }
+
+  /* Hero */
+  .hero { background: linear-gradient(180deg, #ffebeb, #fff); padding-top: 30px; }
+  .hero-grid { display: grid; gap: 26px; }
+  .trust { display: flex; flex-wrap: wrap; gap: 6px 16px; padding: 0; margin: 0; list-style: none; font-size: 14px; color: var(--muted); }
+  .trust li::before { content: "✓ "; color: var(--brand); font-weight: 800; }
+  .photo {
+    aspect-ratio: 4 / 5; max-height: 420px; width: 100%; border-radius: 24px;
+    background: repeating-linear-gradient(45deg, #ffdfe5, #ffdfe5 12px, #ffeef1 12px, #ffeef1 24px);
+    display: grid; place-items: center; color: var(--brand-dark); font-weight: 700; text-align: center; padding: 16px;
+  }
+  .hero-quote { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; font-size: 15px; margin: -40px 16px 0; position: relative; box-shadow: var(--shadow); }
+  .hero-quote b { display: block; font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  /* Mřížky a karty */
+  .grid { display: grid; gap: 16px; margin-top: 20px; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 22px 20px; display: flex; flex-direction: column; position: relative; box-shadow: var(--shadow); }
+  .card.featured { border: 2px solid var(--brand); }
+  .card p { color: var(--muted); font-size: 15px; }
+  .card ul, .ticks { padding: 0; margin: 4px 0 16px; list-style: none; font-size: 15px; }
+  .card li, .ticks li { padding-left: 26px; position: relative; margin-bottom: 7px; }
+  .card li::before, .ticks li::before { content: "✓"; position: absolute; left: 0; color: var(--brand); font-weight: 800; }
+  .badge { position: absolute; top: -12px; left: 20px; background: var(--brand); color: #fff; font-size: 12px; font-weight: 800; padding: 3px 12px; border-radius: 999px; letter-spacing: .5px; }
+  .badge.alt { background: var(--ink); }
+  .for { font-size: 14px; color: var(--muted); margin-bottom: 10px; }
+  .price { margin: auto 0 14px; padding-top: 12px; border-top: 1px dashed var(--line); color: var(--fg) !important; }
+  .price strong { font-size: 27px; font-weight: 800; }
+  .price small { display: block; color: var(--muted); font-size: 14px; }
+  .goal { text-decoration: none; color: var(--fg); }
+  .goal .ico { font-size: 30px; line-height: 1; margin-bottom: 10px; }
+  .goal .go { color: var(--brand); font-weight: 700; margin-top: auto; }
+
+  /* Kroky */
+  .steps { counter-reset: s; }
+  .step { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 18px 14px 64px; position: relative; }
+  .step::before { counter-increment: s; content: counter(s); position: absolute; left: 18px; top: 18px; width: 32px; height: 32px; border-radius: 50%; background: var(--brand); color: #fff; font-weight: 800; display: grid; place-items: center; }
+  .step p { color: var(--muted); font-size: 15px; margin: 0; }
+
+  /* Srovnání */
+  .compare { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); font-size: 15px; }
+  .compare th, .compare td { padding: 12px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+  .compare thead th { background: var(--brand); color: #fff; font-size: 14px; }
+  .compare td:nth-child(2) { font-weight: 600; }
+  .compare td:nth-child(3) { color: var(--muted); }
+
+  /* Tmavý blok */
+  .band { background: linear-gradient(135deg, var(--brand), var(--brand-dark)); color: #fff; border-radius: 22px; padding: 28px 22px; box-shadow: var(--shadow); }
+  .band .eyebrow { color: #ffd0d8; }
+  .band p { color: #ffe9ed; }
+  .band .ticks li::before { color: #fff; }
+  .band .ticks { color: #fff; }
+  .band .big { font-size: 30px; font-weight: 800; color: #fff; margin: 0; }
+
+  /* Reference */
+  .ref .stars { color: #f0a020; letter-spacing: 2px; font-size: 14px; }
+  .ref p { color: var(--fg); margin: 8px 0 12px; }
+  .who { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 14px; margin-top: auto; }
+  .avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--brand-soft); color: var(--brand-dark); display: grid; place-items: center; font-weight: 800; flex: none; }
+  .who .tag { font-weight: 400; color: var(--muted); display: block; font-size: 13px; }
+
+  /* Řádkové položky */
+  .rows { display: grid; gap: 12px; margin-top: 20px; }
+  .row { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; display: flex; gap: 14px; align-items: center; text-decoration: none; color: var(--fg); }
+  .row .ico { font-size: 26px; line-height: 1; flex: none; }
+  .row p { color: var(--muted); font-size: 14px; margin: 2px 0 0; }
+  .row .end { margin-left: auto; font-weight: 800; white-space: nowrap; color: var(--brand); padding-left: 8px; }
+  .pill { display: inline-block; font-size: 12px; font-weight: 700; background: var(--brand-soft); color: var(--brand-dark); padding: 2px 10px; border-radius: 999px; }
+
+  /* O mně */
+  .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 16px 0; }
+  .fact { background: var(--tint); border: 1px solid var(--line); border-radius: 12px; padding: 12px 8px; text-align: center; }
+  .fact strong { display: block; font-size: 22px; color: var(--brand); font-weight: 800; }
+  .fact span { font-size: 13px; color: var(--muted); }
+
+  /* FAQ */
+  details { border-bottom: 1px solid var(--line); padding: 14px 0; }
+  summary { font-weight: 700; cursor: pointer; list-style: none; display: flex; justify-content: space-between; gap: 12px; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; color: var(--brand); font-size: 22px; line-height: 1; }
+  details[open] summary::after { content: "–"; }
+  details p { margin: 10px 0 0; color: var(--muted); font-size: 15px; }
+
+  /* Formulář */
+  .form { display: grid; gap: 10px; margin-top: 14px; }
+  .form input, .form select { background: #fff; color: var(--fg); min-height: 50px; border-radius: 999px; border: 1px solid var(--line); padding: 0 18px; font: inherit; width: 100%; }
+  .form-msg { font-size: 14px; color: #fff; min-height: 20px; margin: 0; }
+
+  /* Závěr + patička */
+  .final .actions { max-width: 420px; margin-left: auto; margin-right: auto; }
+  footer { background: var(--ink); color: #e9dadd; padding: 28px 0 34px; font-size: 14px; }
+  footer .links { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-bottom: 12px; }
+  footer a { color: #fff; }
+  .sticky-cta { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: rgba(255,255,255,.97); border-top: 1px solid var(--line); padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); }
+
+  @media (min-width: 780px) {
+    body { padding-bottom: 0; }
+    .sticky-cta { display: none; }
+    section { padding: 68px 0; }
+    nav ul { display: flex; }
+    .menu-btn, .menu { display: none !important; }
+    .header-cta { display: inline-flex; }
+    .hero { padding-top: 56px; }
+    .hero-grid { grid-template-columns: 1.15fr .85fr; align-items: center; gap: 48px; }
+    .actions { grid-auto-flow: column; justify-content: start; }
+    .final .actions { justify-content: center; max-width: none; }
+    .g3 { grid-template-columns: repeat(3, 1fr); }
+    .g2 { grid-template-columns: repeat(2, 1fr); }
+    .g4 { grid-template-columns: repeat(4, 1fr); }
+    .split { display: grid; grid-template-columns: 1.2fr .8fr; gap: 36px; align-items: center; }
+    .band { padding: 44px; }
+    .page-head { padding: 56px 0 28px; }
+    .form { grid-template-columns: 1fr auto; }
+  }
+
+  /* Klub na míru: ukázka */
+  [hidden] { display: none !important; }
+  .demo { background: #fff; border: 2px dashed var(--line); border-radius: var(--radius); padding: 20px 16px; margin-top: 20px; box-shadow: var(--shadow); max-width: 640px; }
+  .seg { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 16px; }
+  .seg button { min-height: 44px; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--brand); background: #fff; color: var(--brand); font: inherit; font-weight: 700; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--brand); color: #fff; }
+  .bar-outer { height: 10px; background: var(--brand-soft); border-radius: 999px; overflow: hidden; }
+  .bar-inner { height: 100%; width: 0; background: var(--brand); transition: width .3s; }
+  .tipbox { background: var(--tint); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; font-size: 15px; margin-top: 12px; }
+  .mods { list-style: none; padding: 0; margin: 16px 0 0; display: grid; gap: 8px; }
+  .mods button { width: 100%; text-align: left; display: flex; gap: 12px; align-items: center; min-height: 52px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 12px; background: #fff; font: inherit; color: var(--fg); cursor: pointer; }
+  .mods button:disabled { opacity: .5; cursor: default; }
+  .mods .num { width: 28px; height: 28px; border-radius: 50%; background: var(--brand-soft); color: var(--brand-dark); font-weight: 800; font-size: 14px; display: grid; place-items: center; flex: none; }
+  .mods .st { margin-left: auto; font-size: 12px; font-weight: 700; color: var(--muted); white-space: nowrap; padding-left: 8px; }
+  .mods .st.done { color: #2e8b4e; }
+  .mods .st.again { color: #d2641a; }
+  .mods .st.now { color: var(--brand); }
+  .q { margin: 18px 0 0; }
+  .q p { font-weight: 700; margin-bottom: 8px; }
+  .opts { display: grid; gap: 8px; }
+  .opts button { min-height: 46px; border: 1px solid var(--line); border-radius: 12px; background: #fff; font: inherit; color: var(--fg); text-align: left; padding: 10px 14px; cursor: pointer; }
+  .opts button.ok { background: #e3f6e8; border-color: #2e8b4e; }
+  .opts button.bad { background: #fdebdc; border-color: #d2641a; }
+
+  /* Blog */
+  .article { max-width: 720px; font-size: 17px; }
+  .article p { margin: 0 0 16px; }
+  .article h2 { font-size: 22px; margin-top: 28px; }
+  .article h3 { margin-top: 22px; }
+  .article ul, .article ol { padding-left: 22px; margin: 0 0 16px; }
+  .article li { margin-bottom: 6px; }
+  .article a { word-break: break-word; }
+  .article table { border-collapse: collapse; width: 100%; margin: 0 0 16px; font-size: 15px; }
+  .article td, .article th { border: 1px solid var(--line); padding: 8px; text-align: left; vertical-align: top; }
+</style>
+</head>
+<body>
+
+<div class="proto-bar">
+  <div class="wrap">
+    <span>Prototyp 4B · jednodušší · 16.11.2026 · texty a ceny k potvrzení</span>
+    <button type="button" id="toggle-notes">Zobrazit poznámky</button>
+  </div>
+</div>
+
+<div class="money">
+  <div class="wrap">
+    <b>Verze 4B (jednodušší): jedna cesta a tři produkty vedle lekcí 1:1. Bez firem, lektorů, Klubu a vývoje. Žlutě označené věci jsou návrh.</b>
+    <table>
+      <tr><th>Stupeň</th><th>Co</th><th>Proč</th></tr>
+      <tr><td>Obchod</td><td><b>Balíček Na cesty</b> (e-booky + cvičení + tahák), další až podle prodejů</td><td>Prodává se bez Katčiny práce. Balíčky vzniknou z toho, co už existuje.</td></tr>
+      
+      <tr><td>Zdarma</td><td>Test, cvičení v telefonu, e-book zdarma</td><td>Přivádí lidi a ukazuje, v čem je Katka jiná. Výsledek testu vede na lekci zdarma.</td></tr>
+      <tr><td>Vstup</td><td>Úvodní lekce 20 min zdarma + plán na míru</td><td>Hlavní tlačítko celého webu. Odtud se prodává kurz.</td></tr>
+      <tr><td>Jádro</td><td>Kurzy 1:1 podle cíle</td><td>Dnešní hlavní příjem, stejné ceny, jasnější názvy.</td></tr>
+      <tr><td>Pravidelný příjem</td><td><b>Měsíční tarif 1:1</b> (předplatné)</td><td>Místo jednorázového balíčku platba každý měsíc a stálé termíny.</td></tr>
+      
+      <tr><td>Sezónní příjem</td><td><b>Skupinky</b>: 6 týdnů, 4–6 lidí, 4 termíny ročně</td><td>Asi 2 000 Kč za odučenou hodinu. Má začátek a konec, Katka netvoří obsah celý rok.</td></tr>
+      <tr><td>Prémie</td><td>Pohovor na míru</td><td>Nejvyšší cena za hodinu Katčina času.</td></tr>
+      <tr><td>Doplněk</td><td>E-booky v balíčcích</td><td>Malý příjem bez práce, hlavně vstup ke kurzu.</td></tr>
+    </table>
+  </div>
+</div>
+
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="#/">Angličtina <span>s Katkou</span></a>
+    <nav aria-label="Hlavní menu">
+      <ul>
+        <li><a href="#/obchod">Obchod</a></li>
+        
+        <li><a href="#/kurzy">Lekce</a></li>
+        
+        
+        <li><a href="#/zdarma">Zdarma</a></li>
+        
+        
+      </ul>
+    </nav>
+    <a class="btn btn-primary header-cta" href="#/zdarma">Test zdarma</a>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu" id="menu-btn">Menu</button>
+  </div>
+  <div class="menu" id="menu">
+    <a href="#/">Domů</a>
+    <a href="#/obchod">Obchod</a>
+    
+    <a href="#/kurzy">Lekce a konzultace</a>
+    <a href="#/pohovor">Pohovor na míru</a>
+    <a href="#/skupinky">Skupinky</a>
+    <a href="#/zdarma">Zdarma: test a cvičení</a>
+    <a href="#/blog">Blog</a>
+    
+    <a href="#/o-mne">O mně a kontakt</a>
+  </div>
+</header>
+
+<main>
+
+<!-- ============ DOMŮ ============ -->
+<div class="page" data-page="">
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="note">Verze 4B je jednodušší podoba verze 4: bez firem, dalších lektorů, Klubu a kurzů na doma. Jedna cesta: test → e-mail → balíček → konzultace → skupinka, Pohovor na míru nebo lekce 1:1. Hlavní tlačítko už nevede na lekci (Katčin čas), ale na test. Ten sbírá e-mail a doporučí produkt, který se dá koupit hned. Konzultace s Katkou zůstává jako druhá cesta, viditelně, ale ne jako hlavní výzva.</p>
+        <p class="eyebrow">Angličtina pro práci a cesty</p>
+        <h1>Angličtina, kterou opravdu použijete. Začněte testem.</h1>
+        <p class="lead">Za 5 minut zjistíte svou úroveň a dostanete plán, co se učit jako první. Pak si vyberete: sami s našimi materiály, nebo s lektorkou.</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="#/zdarma">Zjistit svou úroveň zdarma</a>
+          <a class="btn btn-secondary" href="#/obchod">Prohlédnout obchod</a>
+        </div>
+        <ul class="trust">
+          <li>Výsledek hned</li>
+          <li>Plán do e-mailu</li>
+          <li>20 let praxe</li>
+        </ul>
+      </div>
+      <div>
+        <div class="photo">Fotka Katky<br>(usměvavá, na výšku)</div>
+        <div class="hero-quote">„Katka mě výborně připravila na pracovní pohovor. Díky ní jsem udělala obrovské pokroky.“<b>Lenka Louženská</b></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <p class="note">Tři cesty podle cíle. Každá vede na produkt s cenou, ne na rezervaci lekce.</p>
+      <p class="eyebrow">Co zrovna potřebujete?</p>
+      <h2>Vyberte si cíl</h2>
+      <div class="grid g3">
+        <a class="card goal" href="#/balicek-cesty"><div class="ico">✈️</div><h3>Jedu do zahraničí</h3><p>Letiště, hotel, restaurace, lékař. Fráze a slovíčka, které použijete hned.</p><span class="go">Balíček Na cesty →</span></a>
+        <a class="card goal" href="#/kurzy"><div class="ico">🗣️</div><h3>Potřebuji ji v práci</h3><p>E-maily, porady, telefon, small talk. Lekce 1:1 podle toho, co v práci řešíte.</p><span class="go">Lekce pro práci →</span></a>
+        <a class="card goal" href="#/pohovor"><div class="ico">💼</div><h3>Čeká mě pohovor</h3><p>Připravím vám odpovědi podle vašeho životopisu a pohovor si vyzkoušíme nanečisto.</p><span class="go">Pohovor na míru →</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="tint">
+    <div class="wrap">
+      <p class="eyebrow">Jak to funguje</p>
+      <h2>Čtyři kroky</h2>
+      <div class="grid g4 steps">
+        <div class="step"><h3>Test</h3><p>5 minut, 14 otázek. Úroveň uvidíte hned.</p></div>
+        <div class="step"><h3>Plán</h3><p>Do e-mailu dostanete, co se učit jako první.</p></div>
+        <div class="step"><h3>Učíte se</h3><p>Balíček s e-booky a cvičením, 10 minut denně v telefonu.</p></div>
+        <div class="step"><h3>Chcete víc?</h3><p>Konzultace, lekce 1:1 nebo skupinka s lektorkou.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <p class="note">Jen tři nabídky vedle lekcí 1:1: balíček (vydělá i bez Katčiny práce), skupinka (hodina vynese asi třikrát víc) a Pohovor na míru (dražší služba s jasným termínem). Ceny jsou návrh.</p>
+      <p class="eyebrow">Nabídka</p>
+      <h2>Tři způsoby, jak začít</h2>
+      <div class="grid g3">
+        <div class="card featured">
+          <span class="badge">HNED, NA DOMA</span>
+          <h3>Balíček Na cesty</h3>
+          <p class="for">Úroveň A2–B1</p>
+          <ul><li>2 e-booky s frázemi a dialogy</li><li>3 sady cvičení do telefonu</li><li>Tahák frází na jednu stranu</li></ul>
+          <p class="price"><strong><span class="todo">390 Kč</span></strong><small>návrh ceny, jednorázově</small></p>
+          <a class="btn btn-primary btn-block" href="#/balicek-cesty">Zobrazit balíček</a>
+        </div>
+        <div class="card">
+          <span class="badge alt">VE SKUPINCE</span>
+          <h3>Skupinka Před dovolenou</h3>
+          <p class="for">6 týdnů · 4–6 lidí</p>
+          <ul><li>Jednou týdně 60 minut online</li><li>Lidé na stejné úrovni jako vy</li><li>Před létem i před zimou</li></ul>
+          <p class="price"><strong><span class="todo">1 990 Kč</span></strong><small>návrh ceny za celý kurz</small></p>
+          <a class="btn btn-secondary btn-block" href="#/skupinky">Zobrazit skupinky</a>
+        </div>
+        <div class="card">
+          <span class="badge alt">S LEKTORKOU</span>
+          <h3>Pohovor na míru</h3>
+          <p class="for">Od úrovně A2</p>
+          <ul><li>Odpovědi podle vašeho životopisu</li><li>2 lekce pohovoru nanečisto</li><li>E-book Job interview v ceně</li></ul>
+          <p class="price"><strong><span class="todo">2 990 Kč</span></strong><small>návrh ceny, jednorázově</small></p>
+          <a class="btn btn-secondary btn-block" href="#/pohovor">Zobrazit přípravu</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<section class="tint">
+    <div class="wrap">
+      <p class="note">Osobní cesta zůstává. Konzultace je zdarma, ale kalendář nabídne jen omezený počet termínů týdně (například 4), aby Katce nezabírala neomezeně času. Je to i vstup k lekcím 1:1, skupinkám a k firmám.</p>
+      <div class="band split">
+        <div>
+          <p class="eyebrow">Raději s člověkem?</p>
+          <h2>Online konzultace zdarma</h2>
+          <p>Dvacet minut se mnou přes video. Zjistím, co potřebujete, a poradím, jestli vám stačí materiály na doma, nebo se vyplatí lekce.</p>
+          <ul class="ticks"><li>Lekce 1:1 podle vašeho cíle</li><li>Skupinky pro 4–6 lidí</li><li>Pohovor na míru</li></ul>
+        </div>
+        <div>
+          <a class="btn btn-light btn-block" href="#/rezervace">Domluvit konzultaci</a>
+          <p class="small" style="margin-top:10px"><a href="#/kurzy" style="color:#fff">Zobrazit lekce a ceny</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <p class="eyebrow">Reference</p>
+      <h2>Co říkají studenti</h2>
+      <div class="grid g3">
+        <div class="card ref"><div class="stars">★★★★★</div><p>„Katka je skvělá učitelka angličtiny, která mě výborně připravila na pracovní pohovor. Díky ní jsem udělala obrovské pokroky.“</p><div class="who"><span class="avatar">LL</span><span>Lenka Louženská<span class="tag">příprava na pohovor</span></span></div></div>
+        <div class="card ref"><div class="stars">★★★★★</div><p>„Lekce jsou sestaveny dle mých potřeb. Dodává mi sebevědomí při mluvě. Káťa je prostě nejlepší!“</p><div class="who"><span class="avatar">EŠ</span><span>Eva Šlamberová<span class="tag">angličtina v praxi</span></span></div></div>
+        <div class="card ref"><div class="stars">★★★★★</div><p>„Nikdy jsem neměla tak super lektorku, která vám vše vysvětlí, i když jste úplně mimo!“</p><div class="who"><span class="avatar">MJ</span><span>Monika Jirků<span class="tag">od základů</span></span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <p class="eyebrow">Z blogu</p>
+      <h2>Začněte čtením</h2>
+      <div class="rows">
+        <a class="row" href="#/clanek-3"><span><b>Jak zvládnout pohovor v angličtině?</b><p>Otázky, které padnou skoro vždy</p></span><span class="end">→</span></a>
+        <a class="row" href="#/clanek-4"><span><b>Zpožděný let nebo ztracené zavazadlo?</b><p>Co říct na letišti</p></span><span class="end">→</span></a>
+        <a class="row" href="#/clanek-6"><span><b>Předložky At, in, on</b><p>Kdo se v tom má vyznat?</p></span><span class="end">→</span></a>
+      </div>
+      <p class="center small" style="margin-top:14px"><a href="#/blog">Všechny články →</a></p>
+    </div>
+  </section>
+
+  <section class="tint">
+    <div class="wrap">
+      <p class="eyebrow">Časté otázky</p>
+      <h2>Na co se lidé ptají</h2>
+      <details><summary>Zvládnu se učit sám, bez lektora?</summary><p>Slovíčka, fráze a gramatiku ano, k tomu je balíček s e-booky a cvičením. Mluvit se nejlíp naučíte s člověkem, proto nabízím i lekce a skupinky.</p></details>
+      <details><summary>Jak balíček dostanu?</summary><p>Hned po zaplacení e-mailem: e-booky ke stažení a odkazy na cvičení do telefonu.</p></details>
+      <details><summary>Co když mi produkt nebude vyhovovat?</summary><p>Do 14 dnů vám vrátím peníze.</p></details>
+      <details><summary>Je konzultace opravdu zdarma?</summary><p>Ano, 20 minut bez závazku. Termínů je každý týden jen několik.</p></details>
+      <details><summary>Jakou úroveň potřebuji?</summary><p>Udělejte si test. U každého produktu je napsané, pro jakou úroveň je.</p></details>
+    </div>
+  </section>
+</div>
+
+<!-- ============ KURZY ============ -->
+<div class="page" data-page="kurzy">
+  <div class="page-head"><div class="wrap">
+    <p class="eyebrow">Lekce a konzultace</p>
+    <h1>Lekce s lektorkou</h1>
+    <p class="lead">Individuálně, ve skupince, nebo jednorázová příprava na pohovor. Začít můžete konzultací zdarma.</p>
+  </div></div>
+
+  <section>
+    <div class="wrap">
+      <p class="note">Balíčky i ceny jsou dnešní (3 390 / 5 990 / 10 990 Kč), nově pojmenované podle cíle a s cenou za lekci. Přiřazení názvů k balíčkům musí potvrdit Katka.</p>
+      <div class="rows" style="margin:0 0 32px">
+        <a class="row" href="#/rezervace"><span class="ico">📅</span><span><b>Online konzultace zdarma</b><p>20 minut, poradím, co vám stačí</p></span><span class="end">→</span></a>
+        <a class="row" href="#/skupinky"><span class="ico">👥</span><span><b>Skupinky</b><p>6 týdnů, 4–6 lidí na stejné úrovni</p></span><span class="end">→</span></a>
+        <a class="row" href="#/pohovor"><span class="ico">💼</span><span><b>Pohovor na míru</b><p>Odpovědi podle vašeho životopisu a pohovor nanečisto</p></span><span class="end">→</span></a>
+      </div>
+      <h2>Lekce 1:1</h2>
+      <div class="grid g3">
+        <div class="card">
+          <h3>Angličtina na cesty</h3>
+          <p class="for">Začátečníci a mírně pokročilí · 10 × 30 min</p>
+          <ul><li>Objednáte si v restauraci a v hotelu</li><li>Vyřešíte zpožděný let nebo ztracený kufr</li><li>Domluvíte se u lékaře a v lékárně</li></ul>
+          <p class="price"><strong>339 Kč</strong> / lekce<small>balíček 3 390 Kč</small></p>
+          <a class="btn btn-secondary btn-block" href="#/rezervace">Začít konzultací zdarma</a>
+        </div>
+        <div class="card featured">
+          <span class="badge">NEJČASTĚJŠÍ VOLBA</span>
+          <h3>Angličtina pro práci</h3>
+          <p class="for">Všechny úrovně · 10 × 60 min</p>
+          <ul><li>Porady, e-maily a small talk</li><li>Představíte sebe i svou práci</li><li>Gramatika, kterou opravdu použijete</li></ul>
+          <p class="price"><strong>599 Kč</strong> / lekce<small>balíček 5 990 Kč</small></p>
+          <a class="btn btn-primary btn-block" href="#/rezervace">Začít konzultací zdarma</a>
+        </div>
+        <div class="card">
+          <span class="badge alt">NEJVÝHODNĚJŠÍ</span>
+          <h3>Konverzace pro pokročilé</h3>
+          <p class="for">Mírně pokročilí až pokročilí · 20 × 60 min</p>
+          <ul><li>Z plynulé komunikace ještě plynulejší</li><li>Víc sebevědomí při mluvení</li><li>Doporučuji 2× týdně</li></ul>
+          <p class="price"><strong>549 Kč</strong> / lekce<small>balíček 10 990 Kč</small></p>
+          <a class="btn btn-secondary btn-block" href="#/rezervace">Začít konzultací zdarma</a>
+        </div>
+      </div>
+      <p class="center small muted" style="margin-top:18px">Ke každému kurzu: plán na míru, cvičení v telefonu mezi lekcemi a garance vrácení peněz do 14 dnů.</p>
+    </div>
+  </section>
+
+  <section class="tint">
+    <div class="wrap">
+      <p class="note">Nové: měsíční tarif. Student po balíčku nemusí znovu nakupovat, platba se opakuje každý měsíc (FAPI nebo SimpleShop to umí). Katka má předvídatelný příjem a stálé termíny. Ceny jsou návrh.</p>
+      <p class="eyebrow">Pro ty, kdo chtějí pokračovat</p>
+      <h2>Měsíční tarif: stálý termín, platba po měsících</h2>
+      <div class="grid g2">
+        <div class="card">
+          <h3>Jednou týdně</h3>
+          <p class="for">4 × 60 min měsíčně, váš stálý termín</p>
+          <ul><li>Bez dalšího nakupování balíčků</li><li>Zrušíte kdykoli k dalšímu měsíci</li><li>Cvičení v telefonu k tématu měsíce</li></ul>
+          <p class="price"><strong><span class="todo">2 390 Kč</span></strong> / měsíc<small>návrh ceny</small></p>
+        </div>
+        <div class="card featured">
+          <span class="badge">RYCHLÝ POKROK</span>
+          <h3>Dvakrát týdně</h3>
+          <p class="for">8 × 60 min měsíčně, dva stálé termíny</p>
+          <ul><li>Nejrychlejší cesta k plynulosti</li><li>Zrušíte kdykoli k dalšímu měsíci</li><li>Cvičení v telefonu k tématu měsíce</li></ul>
+          <p class="price"><strong><span class="todo">4 390 Kč</span></strong> / měsíc<small>návrh ceny</small></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <p class="center small muted">Nevíte, co vybrat? <a href="#/rezervace">Domluvte si konzultaci zdarma.</a></p>
+    </div>
+  </section>
+</div>
+
+<!-- ============ POHOVOR ============ -->
+<div class="page" data-page="pohovor">
+  <div class="page-head"><div class="wrap">
+    <p class="note">Samostatná stránka pro reklamu a pro lidi, kteří hledají „pohovor v angličtině“. Nejvyšší cena za hodinu Katčina času, jasný termín a silná motivace zákazníka. Cena je návrh.</p>
+    <p class="eyebrow">Pohovor na míru</p>
+    <h1>Pohovor v angličtině zvládnete. Připravím vás na ten váš.</h1>
+    <p class="lead">Pošlete mi životopis a inzerát. Dostanete odpovědi na otázky, které vás čekají, a pohovor si vyzkoušíme nanečisto.</p>
+    <div class="actions">
+      <a class="btn btn-primary" href="#/rezervace">Chci se připravit na pohovor</a>
+    </div>
+    <ul class="trust"><li>Hotovo do 5 dnů</li><li>Online, 1:1</li><li>E-book Job interview v ceně</li></ul>
+  </div></div>
+
+  <section>
+    <div class="wrap">
+      <h2>Jak to probíhá</h2>
+      <div class="grid g3 steps">
+        <div class="step"><h3>Pošlete podklady</h3><p>Životopis, inzerát a datum pohovoru. Stačí e-mailem.</p></div>
+        <div class="step"><h3>Připravím vaše odpovědi</h3><p>15–20 nejčastějších otázek s odpověďmi, které sedí na vás a na danou pozici.</p></div>
+        <div class="step"><h3>Pohovor nanečisto</h3><p>Dvě lekce, kde si vše řeknete nahlas. Opravím výslovnost a poradím, co vynechat.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tint">
+    <div class="wrap">
+      <div class="band split">
+        <div>
+          <p class="eyebrow">Co dostanete</p>
+          <ul class="ticks">
+            <li>Vaše odpovědi na 15–20 otázek, písemně</li>
+            <li>2 × 60 min simulace pohovoru</li>
+            <li>Otázky, které můžete položit vy</li>
+            <li>E-book Job interview a sadu cvičení</li>
+          </ul>
+        </div>
+        <div>
+          <p class="big"><span class="todo" style="color:#4a3f10">2 990 Kč</span></p>
+          <p class="small">návrh ceny, jednorázově</p>
+          <a class="btn btn-light btn-block" href="#/rezervace">Chci se připravit</a>
+        </div>
+      </div>
+      <div class="grid g2">
+        <div class="card ref"><div class="stars">★★★★★</div><p>„Katka je skvělá učitelka angličtiny, která mě výborně připravila na pracovní pohovor. Díky ní jsem udělala obrovské pokroky.“</p><div class="who"><span class="avatar">LL</span><span>Lenka Louženská<span class="tag">příprava na pohovor</span></span></div></div>
+        <a class="row" href="#/obchod"><span class="ico">📘</span><span><b>Chcete se připravit sami?</b><p>E-book Job interview: otázky a odpovědi u pohovoru.</p></span><span class="end">399 Kč</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>Časté otázky</h2>
+      <details><summary>Pohovor mám už za týden. Stihneme to?</summary><p>Většinou ano. Napište mi datum a domluvíme se hned, jestli je to reálné.</p></details>
+      <details><summary>Moje angličtina je slabá. Má to smysl?</summary><p>Ano. Odpovědi připravím na vaší úrovni, aby zněly přirozeně a vy jste si je zapamatovali.</p></details>
+      <details><summary>Co když pohovor dopadne a budu angličtinu potřebovat dál?</summary><p>Naváže na to kurz Angličtina pro práci nebo měsíční tarif.</p></details>
+    </div>
+  </section>
+</div>
+
+<!-- ============ SKUPINKY ============ -->
+<div class="page" data-page="skupinky">
+  <div class="page-head"><div class="wrap">
+    <p class="note">Skupinka má začátek a konec (6 týdnů), takže Katka netvoří obsah celý rok a zájemce má důvod přihlásit se do pevného data. Plná skupinka vynese asi 2 000 Kč za odučenou hodinu. Lidi do skupinek řadí test zdarma. Reálně první termín: Před dovolenou na jaře 2027, druhý před zimní dovolenou v listopadu 2027. Úpravy podle Katky: jednotlivá konání kurzu se jmenují termíny a kurz Před dovolenou je i před zimou. Ceny a termíny jsou návrh.</p>
+    <p class="eyebrow">Připravujeme · Sezónní skupinky</p>
+    <h1>Rozmluvte se za 6 týdnů. S lidmi, kteří jsou na tom stejně.</h1>
+    <p class="lead">Malá skupinka na vaší úrovni, jeden společný cíl, pevný začátek i konec.</p>
+    <ul class="trust"><li>4–6 lidí</li><li>6 × 60 minut online</li><li>Úroveň podle testu</li></ul>
+  </div></div>
+
+  <section>
+    <div class="wrap">
+      <h2>Skupinové kurzy během roku</h2>
+      <div class="grid g3">
+        <div class="card">
+          <span class="badge alt">LEDEN–ÚNOR</span>
+          <h3>Nový start</h3>
+          <p class="for">Úroveň A2 a B1 · 6 týdnů</p>
+          <ul><li>Představíte se a udržíte rozhovor</li><li>Mluvíte o sobě, práci a plánech</li><li>Přestanete se bát chyb</li></ul>
+          <p class="price"><strong><span class="todo">1 990 Kč</span></strong><small>návrh ceny za celý kurz</small></p>
+        </div>
+        <div class="card featured">
+          <span class="badge">PŘED LÉTEM I ZIMOU</span>
+          <h3>Před dovolenou</h3>
+          <p class="for">Úroveň A2 a B1 · 6 týdnů</p>
+          <ul><li>Duben–květen a listopad–prosinec</li><li>Letiště, hotel, restaurace</li><li>Co říct, když se něco pokazí</li><li>Balíček e-booků Na cesty v ceně</li></ul>
+          <p class="price"><strong><span class="todo">1 990 Kč</span></strong><small>návrh ceny za celý kurz</small></p>
+        </div>
+        <div class="card">
+          <span class="badge alt">ZÁŘÍ–ŘÍJEN</span>
+          <h3>Angličtina do práce</h3>
+          <p class="for">Úroveň A2 a B1 · 6 týdnů</p>
+          <ul><li>Small talk a porady</li><li>Telefon a e-maily</li><li>Krátká prezentace před skupinou</li></ul>
+          <p class="price"><strong><span class="todo">1 990 Kč</span></strong><small>návrh ceny za celý kurz</small></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tint">
+    <div class="wrap">
+      <h2>Jak to probíhá</h2>
+      <div class="grid g3 steps">
+        <div class="step"><h3>Uděláte si test</h3><p>Podle výsledku vás zařadím do skupinky na vaší úrovni. Nikdo nebude výrazně napřed ani pozadu.</p></div>
+        <div class="step"><h3>Šest společných lekcí</h3><p>Většinu času mluvíte ve dvojicích. Já poslouchám, opravuji a radím.</p></div>
+        <div class="step"><h3>Deset minut denně</h3><p>Ke každému týdnu dostanete sadu cvičení do telefonu.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="band split">
+        <div>
+          <p class="eyebrow">Nejbližší termín</p>
+          <p class="big">Před dovolenou · <span class="todo" style="color:#4a3f10">duben 2027</span></p>
+          <p class="small">termín a cena jsou návrh</p>
+          <ul class="ticks"><li>Přihlášky do pevného data, míst je 6</li><li>Když se nepřihlásí aspoň 4 lidé, kurz se neotevře a nic neplatíte</li></ul>
+        </div>
+        <div>
+          <p><b>Dejte mi vědět, že máte zájem.</b> Ozvu se, až otevřu přihlášky.</p>
+          <form class="form" id="waitlist">
+            <select aria-label="Který kurz vás zajímá">
+              <option>Před letní dovolenou (duben)</option>
+              <option>Před zimní dovolenou (listopad)</option>
+              <option>Angličtina do práce (podzim)</option>
+              <option>Nový start (leden)</option>
+            </select>
+            <input type="email" placeholder="váš e-mail" aria-label="Váš e-mail" required>
+            <button class="btn btn-light" type="submit">Chci vědět první</button>
+          </form>
+          <p class="form-msg" id="waitlist-msg" role="status"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tint">
+    <div class="wrap">
+      <h2>Časté otázky</h2>
+      <details><summary>Jak poznám, do které skupinky patřím?</summary><p>Udělejte si test zdarma. Trvá 5 minut a ukáže vaši úroveň.</p></details>
+      <details><summary>Čím se skupinka liší od lekcí 1:1?</summary><p>Je levnější a mluvíte s různými lidmi, což je blíž skutečnému životu. Lekce 1:1 jsou rychlejší a celé na míru. Dá se to i kombinovat.</p></details>
+      <details><summary>Co když jeden termín nestihnu?</summary><p>Pošlu vám shrnutí lekce a cvičení k tématu, abyste nezůstali pozadu.</p></details>
+      <details><summary>Co když se skupinka nenaplní?</summary><p>Kurz se neotevře a nic neplatíte. Nabídnu vám jiný termín nebo lekce 1:1.</p></details>
+    </div>
+  </section>
+</div>
+
+<!-- ============ ZDARMA ============ -->
+<div class="page" data-page="zdarma">
+  <div class="page-head"><div class="wrap">
+    <p class="note">Ve verzi 4 je test hlavní vstup do webu. V ostré verzi si člověk nechá výsledek poslat e-mailem, dnes test e-mail nesbírá. Tohle už existuje a funguje (test a 8 sad cvičení). Test a cvičení se otevírají v novém okně (v MioWebu budou vložené přímo do stránky). Každé cvičení končí odkazem na lekci zdarma a ze spojování se dá sdílet výsledek, což přivádí nové lidi.</p>
+    <p class="eyebrow">Zdarma</p>
+    <h1>Vyzkoušejte si to nejdřív sami</h1>
+    <p class="lead">Bez registrace, v telefonu i v počítači.</p>
+  </div></div>
+
+  <section>
+    <div class="wrap">
+      <div class="band split">
+        <div>
+          <p class="eyebrow">Začněte tady</p>
+          <h2>Test angličtiny zdarma</h2>
+          <p>14 otázek, 5 minut. Hned uvidíte svou úroveň (A1–B2), co vám jde, na čem zapracovat a který balíček nebo kurz se vám hodí. Podrobný plán vám pošlu e-mailem.</p>
+        </div>
+        <div><a class="btn btn-light btn-block" href="https://jakubsmolek.github.io/anglictina-test/?nahled=4b" target="_blank" rel="noopener">Spustit test</a></div>
+      </div>
+
+      <h2 style="margin-top:36px">Procvičování v telefonu</h2>
+      <p class="muted">Osm sad, každá ve čtyřech režimech: spojování na čas, test, psaní a kartičky.</p>
+      <h3 style="margin-top:20px">Gramatika a slovesa</h3>
+      <div class="rows">
+        <a class="row" href="https://jakubsmolek.github.io/quizlet-dependent-prepositions/" target="_blank" rel="noopener"><span class="ico">🔗</span><span><b>Dependent prepositions</b><p>48 spojení: depend on, afraid of…</p></span><span class="end">→</span></a>
+        <a class="row" href="https://jakubsmolek.github.io/quizlet-irregular-verbs/" target="_blank" rel="noopener"><span class="ico">🔁</span><span><b>Irregular verbs</b><p>40 nepravidelných sloves ve třech tvarech</p></span><span class="end">→</span></a>
+        <a class="row" href="https://jakubsmolek.github.io/quizlet-phrasal-verbs/" target="_blank" rel="noopener"><span class="ico">🧩</span><span><b>Phrasal verbs</b><p>40 frázových sloves</p></span><span class="end">→</span></a>
+        <a class="row" href="https://jakubsmolek.github.io/quizlet-do-make/" target="_blank" rel="noopener"><span class="ico">⚖️</span><span><b>Do or make?</b><p>30 spojení s do a make</p></span><span class="end">→</span></a>
+      </div>
+      <h3 style="margin-top:24px">Slovíčka podle tématu</h3>
+      <p class="small muted">Ukázky z placených balíčků. Celé balíčky s e-booky a tahákem najdete v <a href="#/obchod">obchodě</a>.</p>
+      <div class="rows">
+        <a class="row" href="https://jakubsmolek.github.io/quizlet-airport/" target="_blank" rel="noopener"><span class="ico">🛫</span><span><b>At the airport</b><p>30 slovíček: odbavení, zavazadla, zpoždění</p></span><span class="end">→</span></a>
+        <a class="row" href="https://jakubsmolek.github.io/quizlet-accommodation/" target="_blank" rel="noopener"><span class="ico">🏨</span><span><b>Accommodation</b><p>30 slovíček: pokoje, rezervace, služby hotelu</p></span><span class="end">→</span></a>
+        <a class="row" href="https://jakubsmolek.github.io/quizlet-pharmacy-doctor/" target="_blank" rel="noopener"><span class="ico">💊</span><span><b>At the pharmacy and doctor</b><p>42 slovíček: potíže, léky, vyšetření</p></span><span class="end">→</span></a>
+        <a class="row" href="https://jakubsmolek.github.io/quizlet-work/" target="_blank" rel="noopener"><span class="ico">💼</span><span><b>Work</b><p>40 slovíček: pohovor, smlouva, úvazky</p></span><span class="end">→</span></a>
+      </div>
+
+      <p class="note" style="margin-top:28px">E-book zdarma je dnešní lead magnet. Mini-kurz e-mailem je nový a zatím neexistuje (5 e-mailů z obsahu e-booků, poslední zve na lekci zdarma).</p>
+      <h2 style="margin-top:36px">Ke stažení a do e-mailu</h2>
+      <div class="rows">
+        <a class="row" href="https://anglictinaskatkou.cz/ebook-zdarma-s-anglictinou-na-cesty/" target="_blank" rel="noopener"><span class="ico">✈️</span><span><b>E-book S angličtinou na cesty</b><p>Fráze a dialogy na dovolenou, zdarma za e-mail</p></span><span class="end">→</span></a>
+        <a class="row" href="#/zdarma"><span class="ico">📬</span><span><b>5 dní angličtiny do práce</b> <span class="pill">připravujeme</span><p>Krátká lekce každý den do e-mailu</p></span><span class="end">→</span></a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ OBCHOD ============ -->
+<div class="page" data-page="obchod">
+  <div class="page-head"><div class="wrap">
+    <p class="note">Jednodušší verze: obchod začíná jedním balíčkem. Další dva (Do práce, Gramatika) jsou připravené a přidají se, až se první prodává aspoň 10× měsíčně. Kurzy na doma, Klub a trenažér tady nejsou. Košík poběží v e-shopu MioWebu. Cena i záruka jsou návrh.</p>
+    <p class="eyebrow">Obchod</p>
+    <h1>Angličtina, kterou zvládnete sami</h1>
+    <p class="lead">E-booky a cvičení do telefonu. Zaplatíte jednou, učíte se vlastním tempem.</p>
+    <ul class="trust"><li>Ihned po zaplacení</li><li>V telefonu i v počítači</li><li>14 dní na vrácení peněz</li></ul>
+  </div></div>
+
+  <section>
+    <div class="wrap">
+      <div class="band split">
+        <div>
+          <p class="eyebrow">Balíček Na cesty · úroveň A2–B1</p>
+          <h2>Domluvte se od letiště až po hotel</h2>
+          <ul class="ticks">
+            <li>E-book Brána do celého světa</li>
+            <li>E-book Zpožděný let a ztracené zavazadlo</li>
+            <li>Cvičení: letiště, ubytování, lékárna a lékař</li>
+            <li>Tahák frází na jednu stranu</li>
+          </ul>
+        </div>
+        <div>
+          <p class="big"><span class="todo" style="color:#4a3f10">390 Kč</span></p>
+          <p class="small">návrh ceny, jednorázově</p>
+          <a class="btn btn-light btn-block" href="#/balicek-cesty">Zobrazit balíček</a>
+        </div>
+      </div>
+
+      <h2 style="margin-top:36px">Připravujeme</h2>
+      <div class="rows">
+        <div class="row"><span class="ico">💼</span><span><b>Balíček Do práce</b> <span class="pill">brzy</span><p>E-book Job interview, cvičení a tahák frází do e-mailů</p></span></div>
+        <div class="row"><span class="ico">📐</span><span><b>Balíček Gramatika bez stresu</b> <span class="pill">brzy</span><p>Předložky, nepravidelná slovesa, do nebo make</p></span></div>
+      </div>
+
+      <h2 style="margin-top:36px">Další možnosti</h2>
+      <div class="rows">
+        <a class="row" href="#/zdarma"><span class="ico">📝</span><span><b>Nejdřív si to vyzkoušet zdarma</b><p>Test úrovně a sady cvičení</p></span><span class="end">→</span></a>
+        <a class="row" href="#/kurzy"><span class="ico">👩‍🏫</span><span><b>Chci lektorku</b><p>Lekce 1:1, skupinky, Pohovor na míru</p></span><span class="end">→</span></a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ BALÍČEK NA CESTY (ukázka prodejní stránky) ============ -->
+<div class="page" data-page="balicek-cesty">
+  <div class="page-head"><div class="wrap">
+    <p class="note">Ukázka prodejní stránky jednoho produktu. Takhle bude vypadat každý balíček: co v něm je, ukázka zdarma, cena, tlačítko. Na tuhle stránku povedou články o cestování a kampaň před dovolenou.</p>
+    <p class="small"><a href="#/obchod">← Zpět do obchodu</a></p>
+    <p class="eyebrow">Balíček Na cesty</p>
+    <h1>Domluvte se od letiště až po hotel</h1>
+    <p class="lead">Fráze, dialogy a slovíčka na dovolenou. Přečtete si a hned si to v telefonu procvičíte.</p>
+    <div class="actions"><button class="btn btn-primary" type="button" data-buy>Koupit za <span class="todo" style="color:#4a3f10">390 Kč</span></button></div>
+    <ul class="trust"><li>Ihned po zaplacení</li><li>Úroveň A2–B1</li><li>14 dní na vrácení peněz</li></ul>
+  </div></div>
+
+  <section>
+    <div class="wrap">
+      <h2>Co v balíčku je</h2>
+      <div class="grid g2">
+        <div class="card"><h3>2 e-booky</h3><ul><li>Brána do celého světa (39 stran)</li><li>Zpožděný let a ztracené zavazadlo (22 stran)</li><li>Fráze, dialogy a slovíčka s překladem</li></ul></div>
+        <div class="card"><h3>3 sady cvičení do telefonu</h3><ul><li>Na letišti (30 slovíček)</li><li>Ubytování (30 slovíček)</li><li>V lékárně a u lékaře (42 slovíček)</li><li>Spojování, test, psaní, kartičky</li></ul></div>
+        <div class="card"><h3>Tahák na jednu stranu</h3><ul><li>30 vět, které použijete nejčastěji</li><li>K vytištění nebo do telefonu</li></ul></div>
+        <div class="card"><h3>Pro koho to je</h3><ul><li>Jedete do zahraničí a chcete se domluvit</li><li>Anglicky jste se učili, ale nemluvíte</li><li>Máte 10 minut denně</li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tint">
+    <div class="wrap">
+      <p class="note">Ukázka zdarma snižuje obavu z nákupu. V ostré verzi bude jedna sada zdarma napořád, zbylé dvě dostane kupující. Dnes jsou všechny sady na veřejné adrese, takže zamčené nejsou.</p>
+      <h2>Vyzkoušejte si ukázku</h2>
+      <div class="rows">
+        <a class="row" href="https://jakubsmolek.github.io/quizlet-airport/" target="_blank" rel="noopener"><span class="ico">🛫</span><span><b>Cvičení Na letišti</b><p>Jedna ze tří sad, zdarma</p></span><span class="end">→</span></a>
+        <a class="row" href="#/clanek-4"><span class="ico">📖</span><span><b>Článek: Zpožděný let nebo ztracené zavazadlo?</b><p>Ukázka toho, co najdete v e-booku</p></span><span class="end">→</span></a>
+      </div>
+      <div class="band split" style="margin-top:28px">
+        <div>
+          <p class="eyebrow">Balíček Na cesty</p>
+          <p class="big"><span class="todo" style="color:#4a3f10">390 Kč</span></p>
+          <p class="small">návrh ceny · jednorázově · samostatně by e-booky stály víc</p>
+        </div>
+        <div><button class="btn btn-light btn-block" type="button" data-buy>Koupit balíček</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>Chcete si to i vyzkoušet nahlas?</h2>
+      <div class="rows">
+        <a class="row" href="#/skupinky"><span class="ico">👥</span><span><b>Skupinka Před dovolenou</b><p>6 týdnů, 4–6 lidí, balíček v ceně</p></span><span class="end">→</span></a>
+        <a class="row" href="#/rezervace"><span class="ico">📅</span><span><b>Online konzultace zdarma</b><p>20 minut, poradím, co vám stačí</p></span><span class="end">→</span></a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ O MNĚ ============ -->
+<div class="page" data-page="o-mne">
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="note">Krátce a osobně. Chybí certifikáty (CELTA, CAE…): pokud nějaké jsou, patří sem. Kontakt je na stejné stránce, ať je menu krátké.</p>
+        <p class="eyebrow">O mně</p>
+        <h1>Jsem Katka a angličtinu učím 20 let</h1>
+        <p class="lead">Vím, že nejtěžší je začít mluvit. Proto na lekcích hodně mluvíme, opravuji vlídně a učím jen to, co opravdu použijete.</p>
+        <p class="muted">K poslechu používám autentické nahrávky a videa. Mezi lekcemi procvičujete v telefonu na cvičeních, která připravuji sama.</p>
+        <div class="facts">
+          <div class="fact"><strong>20</strong><span>let praxe</span></div>
+          <div class="fact"><strong>1:1</strong><span>jen vy a já</span></div>
+          <div class="fact"><strong><span class="todo">?</span></strong><span>certifikát</span></div>
+        </div>
+      </div>
+      <div class="photo">Fotka Katky<br>(při výuce / u počítače)</div>
+    </div>
+  </section>
+
+  <section class="tint">
+    <div class="wrap">
+      <p class="eyebrow">Kontakt</p>
+      <h2>Napište mi</h2>
+      <div class="rows">
+        <a class="row" href="mailto:katka@anglictinaskatkou.cz"><span class="ico">✉️</span><span><b>E-mail</b><p>katka@anglictinaskatkou.cz</p></span><span class="end">→</span></a>
+        <a class="row" href="#/o-mne"><span class="ico">💬</span><span><b><span class="todo">WhatsApp</span></b><p>Rychlá domluva, číslo doplní Katka</p></span><span class="end">→</span></a>
+        <a class="row" href="#/rezervace"><span class="ico">📅</span><span><b>Online konzultace zdarma</b><p>20 minut, vyberete si termín v kalendáři</p></span><span class="end">→</span></a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ REZERVACE ============ -->
+<div class="page" data-page="rezervace">
+  <div class="page-head"><div class="wrap">
+    <p class="note">Sem přijde vložený kalendář (Calendly nebo Reservio), aby rezervace byla na dvě kliknutí bez psaní e-mailů. Zatím jen ukázka místa. Ve verzi 4 nabídne kalendář jen omezený počet termínů týdně (například 4), aby konzultace nezabíraly Katce neomezeně času.</p>
+    <p class="eyebrow">Online konzultace zdarma</p>
+    <h1>Vyberte si termín</h1>
+    <p class="lead">20 minut, online, nezávazně. Do druhého dne dostanete plán na míru.</p>
+  </div></div>
+  <section>
+    <div class="wrap split">
+      <div class="photo" style="aspect-ratio:4/3; max-height:340px">Rezervační kalendář<br>(Calendly / Reservio)</div>
+      <div>
+        <h3>Co vás čeká</h3>
+        <ul class="ticks"><li>Krátce si popovídáme česky i anglicky</li><li>Zjistím vaši úroveň a cíl</li><li>Dostanete 3 věci ke zlepšení a 10 frází</li><li>Doporučím kurz. Rozhodnutí je na vás.</li></ul>
+        <p class="small muted">Ještě si nejste jistí? <a href="#/zdarma">Udělejte si nejdřív test.</a></p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ BLOG ============ -->
+<div class="page" data-page="blog">
+  <div class="page-head"><div class="wrap">
+    <p class="note">Články převzaté z dnešního webu (9 kusů, bez obrázků). Odkazy na starý web jsou odstraněné, takže blog funguje samostatně. Nově má každý článek na konci související cvičení a výzvu k testu nebo lekci zdarma: z blogu se tak stává cesta k prodeji, ne slepá ulička.</p>
+    <p class="eyebrow">Blog</p>
+    <h1>Tipy, fráze a slovíčka</h1>
+    <p class="lead">Krátké články k tomu, co zrovna potřebujete: cesty, práce, gramatika.</p>
+  </div></div>
+  <section>
+    <div class="wrap">
+      <div class="grid g3">
+        <a class="card goal" href="#/clanek-1"><p class="for">11. března 2025</p><h3>5 důvodů, proč se učit anglicky, pokud rádi cestujete</h3><p>Cestování je úžasné – poznávání nových míst, lidí a chutí. Ale ruku na srdce, kolikrát se vám stalo, že jste nerozuměli nápisu na letišti nebo menu v restauraci? 😅â€¦</p><span class="go">Číst článek →</span></a>
+        <a class="card goal" href="#/clanek-2"><p class="for">12. října 2024</p><h3>Nebojte se angličtiny v&nbsp;lékárně a&nbsp;u lékaře</h3><p>Když cestujete nebo žijete v zahraničí, jednou z nejdůležitějších situací, kdy budete potřebovat angličtinu, je návštěva lékaře – at the doctor nebo lékárny – at theâ€¦</p><span class="go">Číst článek →</span></a>
+        <a class="card goal" href="#/clanek-3"><p class="for">28. září 2024</p><h3>Jak zvládnout pohovor v&nbsp;angličtině?</h3><p>Pozvali vás na pohovor v angličtině. Váš sen, pracovat v zahraničí 🌍 nebo pro mezinárodní firmu, je na dosah ruky. Těšíte se, ale jak se blíží den D, začne Vás ovládatâ€¦</p><span class="go">Číst článek →</span></a>
+        <a class="card goal" href="#/clanek-4"><p class="for">8. července 2024</p><h3>Zpožděný let nebo ztracené zavazadlo?</h3><p>Řešili jste někdy na dovolené zpoždění letu – delay nebo ztrátu zavazadla – lost luggage/ baggage/ bag ? Asi jedna z nočních můr každého cestovatele. A to nejen pro ty,â€¦</p><span class="go">Číst článek →</span></a>
+        <a class="card goal" href="#/clanek-5"><p class="for">28. května 2024</p><h3>Transport aneb cestujeme na&nbsp;dovolené</h3><p>Chystáte se vyrazit na dovolenou? Letecky – by plane , vlakem – by train nebo autem – by car nebo? 😊 Pokud cestujete na nějaký ostrov, můžete se tam dostat nejenâ€¦</p><span class="go">Číst článek →</span></a>
+        <a class="card goal" href="#/clanek-6"><p class="for">20. dubna 2024</p><h3>Předložky v&nbsp;angličtině: At, in, on &#8211; kdo se v&nbsp;tom má vyznat?</h3><p>Ve světě angličtiny jsou předložky jako malé, ale rozhodně ne neškodné pasti, do kterých se mnozí často zamotají. Zvláště pro ty, kteří nemluví tolik anglicky, může býtâ€¦</p><span class="go">Číst článek →</span></a>
+        <a class="card goal" href="#/clanek-7"><p class="for">28. března 2024</p><h3>Money, money, money</h3><p>Cestování je skvělé, ale co když přijde čas platit? 🤔 Chcete si na cestách koupit kafe, zaplatit v restauraci nebo si domů přivézt suvenýry? 💳🛍️ Bez správných frází oâ€¦</p><span class="go">Číst článek →</span></a>
+        <a class="card goal" href="#/clanek-8"><p class="for">17. února 2024</p><h3>Fresh food market &#8211; chuť exotiky</h3><p>Když se vydáte do cizích krajů, nezapomeňte na výlety do světa pochoutek! Nejenže můžete obdivovat památky a krásy přírody, ale také si pochutnat v místníchâ€¦</p><span class="go">Číst článek →</span></a>
+        <a class="card goal" href="#/clanek-9"><p class="for">16. února 2024</p><h3>Are there any bones? aneb v&nbsp;restauraci na&nbsp;dovolené</h3><p>Místo přípitku Cheers! (Na zdraví!) zvolala Chairs! (Židle!) A bylo veselo. 🙂 I takhle může vypadat vaše historka z dovolené. Hned u snídaně v hotelu začíná vaše prvníâ€¦</p><span class="go">Číst článek →</span></a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="page" data-page="clanek-1">
+  <div class="page-head"><div class="wrap">
+    <p class="small"><a href="#/blog">← Zpět na blog</a></p>
+    <p class="eyebrow">Blog &middot; 11. března 2025</p>
+    <h1>5 důvodů, proč se učit anglicky, pokud rádi cestujete</h1>
+  </div></div>
+  <section>
+    <div class="wrap">
+      <div class="article"><p><strong>Cestování je úžasné </strong>– poznávání nových míst, lidí a&nbsp;chutí. Ale ruku na&nbsp;srdce, kolikrát se vám stalo, že jste nerozuměli nápisu na&nbsp;letišti nebo menu v&nbsp;restauraci? 😅 Angličtina je klíč, který vám otevře dveře do&nbsp;celého světa. Pojďme se podívat na&nbsp;<strong>5 důvodů</strong>, proč byste se ji měli naučit, a&nbsp;přidám i&nbsp;užitečná slovíčka a&nbsp;otázky, které se vám na&nbsp;cestách budou hodit.</p> <p>✅ <strong>Bezproblémová komunikace kdekoliv</strong></p> <p>Angličtina je mezinárodní jazyk – využijete ji téměř všude: v&nbsp;hotelu, na&nbsp;letišti nebo v&nbsp;obchodě.</p> <p><strong>„Where is the nearest bus stop?“</strong> – Kde je nejbližší autobusová zastávka?<br><strong>„How much does it cost?“</strong> – Kolik to stojí?<br><strong>„Can I&nbsp;have the menu, please?“</strong> – Mohu dostat jídelní lístek, prosím?<br><strong>„I have a&nbsp;reservation.“</strong> – Mám rezervaci.</p> <p>✅ <strong>Zážitek jako místní</strong></p> <p>Chcete se ponořit do&nbsp;místní kultury? S angličtinou se snadno zapovídáte s&nbsp;místními a&nbsp;zjistíte, co v&nbsp;průvodcích či na&nbsp;internetu nenajdete.</p> <p><strong>„What places do&nbsp;you recommend to visit?“</strong> – Jaká místa doporučujete navštívit?<br><strong>„Where do&nbsp;locals eat around here?“</strong> – Kde se tady stravují místní?<br><strong>„Is there a&nbsp;market nearby?“</strong> – Je tady poblíž trh?</p> <p>✅ <strong>Pomoc v&nbsp;nouzi</strong></p> <p>Ztracené zavazadlo nebo zmeškaný let? 😱 Angličtina vám pomůže tyto situace <strong>zvládnout BEZ STRESU</strong>.</p> <p><strong>„I think my luggage is lost.“</strong> – Myslím, že jsem ztratil(a) zavazadlo.<br><strong>„I missed my flight. What should I&nbsp;do?“</strong> – Zmeškal(a) jsem let. Co mám dělat?<br><strong>„Can you help me, please?“</strong> – Můžete mi prosím pomoci?</p> <p>✅ <strong>Více zážitků a&nbsp;dobrodružství</strong></p> <p>S angličtinou se můžete přidat na&nbsp;komentované prohlídky, porozumíte informacím o&nbsp;památkách a&nbsp;<strong>NEBUDETE ZÁVISLÍ NA&nbsp;PŘEKLADECH</strong>.</p> <p><strong>„What time does the tour start?“</strong> – Kdy začíná prohlídka?<br><strong>„How long does the tour last?“</strong> – Jak dlouho trvá prohlídka?</p> <p>✅ <strong>Cestování bez stresu</strong></p> <p>Od plánování cesty až po&nbsp;samotnou dovolenou – s angličtinou se budete cítit sebejistě a&nbsp;pohodlně.</p> <p><strong>„How do&nbsp;I&nbsp;get to the city centre?“</strong> – Jak se dostanu do&nbsp;centra města?<br><strong>„Is this seat taken?“</strong> – Je toto sedadlo (místo) volné?<br><strong>„Can I&nbsp;pay by card?“</strong> – Mohu platit kartou?</p> <p>Všechny fráze z&nbsp;tohoto článku si můžete <strong>PROCVIČIT I&nbsp;POSLECHNOUT </strong>na <a href="https://quizlet.com/cz/1017251520/5-reasons-flash-cards/?new" target="_blank" rel="noopener">odkazu zde</a>.</p> <p><strong>Pokud se na&nbsp;Vaše cesty do&nbsp;zahraničí chcete připravit JEŠTĚ LÉPE</strong>, můžete si stáhnout můj <strong>ebook Brána do&nbsp;celého světa</strong>. <strong>Jako DÁREK</strong> 🎁, že jste dočetli až sem, mám pro&nbsp;vás ✨<strong>slevový kód</strong> <strong>FIVE</strong>✨, který můžete zadat u&nbsp;objednávky tohoto ebooku.</p> <p>Pro více slovíček a&nbsp;frází, mě sledujte na&nbsp;<a href="https://www.facebook.com/profile.php?id=100089955203928" target="_blank" rel="noopener">Facebooku</a> nebo <a href="https://www.instagram.com/anglictinaskatkou/" target="_blank" rel="noopener">Instagramu</a>. </p></div>
+      <h2 style="margin-top:36px">Vyzkoušejte si to</h2>
+      <div class="rows">
+        <a class="row" href="https://jakubsmolek.github.io/quizlet-accommodation/" target="_blank" rel="noopener"><span><b>Cvičení: Ubytování</b><p>30 slovíček v telefonu</p></span><span class="end">&rarr;</span></a>
+        <a class="row" href="#/zdarma"><span><b>Test angličtiny zdarma</b><p>5 minut, zjistíte svou úroveň</p></span><span class="end">&rarr;</span></a>
+        <a class="row" href="#/rezervace"><span><b>Online konzultace zdarma</b><p>20 minut, poradím, co vám stačí</p></span><span class="end">&rarr;</span></a>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="page" data-page="clanek-2">
+  <div class="page-head"><div class="wrap">
+    <p class="small"><a href="#/blog">← Zpět na blog</a></p>
+    <p class="eyebrow">Blog &middot; 12. října 2024</p>
+    <h1>Nebojte se angličtiny v&nbsp;lékárně a&nbsp;u lékaře</h1>
+  </div></div>
+  <section>
+    <div class="wrap">
+      <div class="article"><p>Když cestujete nebo žijete v&nbsp;zahraničí, jednou z&nbsp;nejdůležitějších situací, kdy budete potřebovat angličtinu, je návštěva lékaře &#8211;<strong> at the doctor</strong> nebo lékárny &#8211; <strong>at the pharmacy</strong>. Umět jasně popsat své příznaky- <strong>symptoms</strong> a&nbsp;rozumět, co vám lékař nebo lékárník říká. </p> <p>Představte si, že vám není dobře v cizí zemi 🌍a nedokážete vysvětlit, co vám je. Tyto situace mohou být velmi stresující.😰 Se správnými slovíčky můžete předejít nedorozuměním a&nbsp;cítit se jistěji.</p> <p>Podívejme se na&nbsp;důležitá slovíčka a&nbsp;fráze, které byste měli znát při návštěvě lékárny a&nbsp;lékaře.</p> <p>V lékárně – <strong>At the pharmacy</strong> <br>Když navštívíte lékárnu, obvykle si jdete vyzvednout volně prodejné léky nebo lék na předpis. Zde jsou některá užitečná <a href="https://quizlet.com/956199659/match?funnelUUID=22c57bf4-efab-41f3-81f2-7a0b7f1eb2ff" target="_blank" rel="noopener">slovíčka na procvičení</a>:</p>
+<ul>
+<li> <strong>Prescription</strong> – recept od lékaře<br><strong>“I need to fill a prescription.“</strong> „Potřebuji si vyzvednout recept.“</li>
+<li> <strong>Over-the-counter</strong> – lék, který můžete koupit bez receptu.<br><strong>“Do you have any over-the-counter pain relievers?”</strong>„Máte volně prodejné léky proti bolesti?“</li>
+</ul> <ul>
+<li><strong> Dosage</strong> – dávkování<br><strong>“What’s the correct dosage for this medicine?”</strong>„Jaké je správné dávkování tohoto léku?“</li>
+<li><strong> Side effects</strong> – vedlejší účinky<br><strong>“What are the side effects of this medicine?”</strong>„Jaké jsou vedlejší účinky tohoto léku?“</li>
+<li> <strong>Painkillers</strong> – léky proti bolesti, jako ibuprofen nebo paracetamol<br><strong>“I need some painkillers for my headache.”</strong>„Potřebuji nějaké léky proti bolesti na bolest hlavy.“</li>
+<li> <strong>Antibiotics</strong> – antibiotika<br><strong>“The doctor prescribed me antibiotics.”</strong>„Lékař mi předepsal antibiotika.“</li>
+</ul> <p>U lékaře – <strong>At the doctor</strong> <br>Návštěva lékaře může být trochu složitější, zejména pokud potřebujete popsat, jak se cítíte. Zde jsou důležitá slovíčka a <a href="https://quizlet.com/cz/956201767/pharmacydoctor-phrases-flash-cards/" target="_blank" rel="noopener">fráze</a>:</p>
+<ul>
+<li> <strong>Symptoms</strong> – příznaky<br><strong>“I’ve been having symptoms of the flu.”</strong>„Mám příznaky chřipky.“</li>
+<li> <strong>Treatment</strong> – léčba, péče<br><strong>“What’s the recommended treatment?”</strong>„Jaká je doporučená léčba?“</li>
+<li> <strong>Allergy</strong> – alergie<br><strong>“I have an allergy to penicillin.”</strong> nebo <strong>„I´m allergic to penicillin.“</strong>„Jsem alergický na penicilin.“</li>
+<li> <strong>Fever</strong> – horečka<br><strong>“I’ve had a fever for three days.”</strong>„Mám už tři dny horečku.“</li>
+</ul> <p>Ať už jste v&nbsp;lékárně nebo u&nbsp;lékaře, znalost správné <a href="https://quizlet.com/cz/956199659/pharmacy-vocabulary-flash-cards/?new" target="_blank" rel="noopener">slovní zásoby</a> vám vše usnadní.</p> <p>Pokud se na&nbsp;vaše cesty do&nbsp;zahraničí chcete připravit důkladněji✨, můžete si stáhnout můj📘 ebook Brána do&nbsp;celého světa, jehož součástí je i&nbsp;slovní zásoba do&nbsp;lékárny a&nbsp;k lékaři. <strong>Jako dárek🎁, že jste dočetli až sem, mám pro&nbsp;vás ✨slevový kód PAINKILLER✨, který můžete zadat u&nbsp;objednávky tohoto ebooku.</strong>😊</p> <p>Potřebujete zlepšit angličtinu? Jsem tady pro&nbsp;vás i&nbsp;na Facebooku&nbsp;<a href="https://www.facebook.com/profile.php?id=100089955203928" target="_blank" rel="noopener">Angličtina s&nbsp;Katkou</a>&nbsp;nebo na&nbsp;Instagramu&nbsp;<a href="https://www.instagram.com/anglictinaskatkou/" target="_blank" rel="noopener">@anglictinaskatkou</a>&nbsp;nebo můžete zkusit i&nbsp;online kurzy, kde se naučíte angličtinu používat v&nbsp;běžném životě bez obav.😊</p></div>
+      <h2 style="margin-top:36px">Vyzkoušejte si to</h2>
+      <div class="rows">
+        <a class="row" href="https://jakubsmolek.github.io/quizlet-pharmacy-doctor/" target="_blank" rel="noopener"><span><b>Cvičení: V lékárně a u lékaře</b><p>42 slovíček v telefonu</p></span><span class="end">&rarr;</span></a>
+        <a class="row" href="#/zdarma"><span><b>Test angličtiny zdarma</b><p>5 minut, zjistíte svou úroveň</p></span><span class="end">&rarr;</span></a>
+        <a class="row" href="#/rezervace"><span><b>Online konzultace zdarma</b><p>20 minut, poradím, co vám stačí</p></span><span class="end">&rarr;</span></a>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="page" data-page="clanek-3">
+  <div class="page-head"><div class="wrap">
+    <p class="small"><a href="#/blog">← Zpět na blog</a></p>
+    <p class="eyebrow">Blog &middot; 28. září 2024</p>
+    <h1>Jak zvládnout pohovor v&nbsp;angličtině?</h1>
+  </div></div>
+  <section>
+    <div class="wrap">
+      <div class="article"><p>Pozvali vás na&nbsp;pohovor v&nbsp;angličtině. Váš sen, pracovat v zahraničí 🌍 nebo pro&nbsp;mezinárodní firmu, je na&nbsp;dosah ruky. Těšíte se, ale jak se blíží den D, začne Vás ovládat nervozita 😬. A&nbsp;co když nebudete vědět, co říct? Co když zapomenete ta správná slova? Přijdete o&nbsp;šanci jen proto, že Vám vypadne nějaké důležité slovíčko? 🤯 Možná jste něco podobného zažili i&nbsp;Vy 🤔. Ten pocit, když víte, co chcete říct, ale nemůžete si vzpomenout 😩.</p> <p>Pravděpodobně očekáváte otázky typu <strong>„What was your previous job?“</strong> – Co bylo vaše předchozí zaměstnání? nebo <strong>„Why do&nbsp;you want to work for our company?“</strong> Proč chcete pracovat pro&nbsp;naši společnost? a&nbsp;podobně. Další velmi častá a&nbsp;„oblíbená“ otázka personalistů je <strong>„How do&nbsp;you see your career? Where do&nbsp;you see yourself in five years?“</strong> tedy Jak vidíte vaši kariéru? Kde se vidíte za&nbsp;pět let?</p> <p>A pak otázka, kdy se vás ptají na&nbsp;vaše silné a&nbsp;slabé stránky? <strong>„What are your strenghts and weaknesses?</strong>&#8220; Pro&nbsp;tento případ se hodí slovní zásoba na&nbsp;<strong><a href="https://bit.ly/describing_people_match_quizlet" target="_blank" rel="noopener">Describing people</a></strong>, kde najdete nejen popis vzhledu – <strong>„appearance&#8220;</strong>, abyste mohli popsat kolegy 😊, ale i&nbsp;slovíčka na&nbsp;vlastnosti jako třeba spolehlivý – <strong>„reliable“</strong>, zodpovědný – <strong>„responsible</strong>&#8220; a&nbsp;mnoho vašich dalších dobrých vlastností. 😊</p> <p>Samozřejmě se zde neobejdete bez slovní zásoby na&nbsp;<strong><a href="https://bit.ly/work_vocabulary" target="_blank" rel="noopener">Work</a></strong>, abyste věděli, jestli hledáte práci na&nbsp;<strong>„full-time</strong>&#8220; – plný pracovní úvazek nebo <strong>„part-time</strong>&#8220; – částečný pracovní úvazek. Nebo jestli chtějí spolupráci na&nbsp;živnostenský list a&nbsp;vy budete tedy <strong>„self-employed</strong>&#8220; – OSVČ 😊.</p> <p>Můžete si zopakovat a&nbsp;zkusit odpovědět na&nbsp;těchto pár otázek na&nbsp;<a href="https://bit.ly/job_interview_questions" target="_blank" rel="noopener">Job interview</a>:<br><strong>„What was your previous job?&#8220;<br>„Why are you leaving your current job?&#8220;<br>„Why do&nbsp;you want to work for our company?&#8220;<br>„What are your strenghts and weaknesses?&#8220;<br>„Where do&nbsp;you see yourself in 5 years?“</strong></p> <p>Problém, jak úspěšně zvládnout pohovor v&nbsp;angličtině, má řešení, a&nbsp;je jednodušší, než si myslíte 😊. Není to o&nbsp;tom, že musíte znát každé slovíčko, ale o&nbsp;tom, jak se na&nbsp;pohovor připravíte. A&nbsp;to je důvod, proč jsem vytvořila <strong>ebook Job Interview</strong>, který Vám pomůže získat potřebnou jistotu. 📘</p> <p>Uvnitř najdete nejen <strong>nejčastější otázky, ale také odpovědi</strong>, které se u&nbsp;pohovorů vyskytují. Zároveň si je <strong>všechny můžete i&nbsp;poslechnout</strong>.🎧 To se určitě neztratí 😊 A&nbsp;vyzkoušejte si, jestli dokážete k&nbsp;sobě přiřadit otázky a&nbsp;odpovědi. Aby se vám u&nbsp;pohovoru nestalo, že se díky stresu ztratíte v&nbsp;anglických otázkách a&nbsp;budete odpovídat na&nbsp;úplně něco jiného.</p> <p><strong>Plus zde přidávám 3 tipy pro&nbsp;snazší zvládnutí pohovoru.</strong></p> <p>✅<strong>Připravte si svou „záchrannou“ frázi</strong><br>Pokud se Vám stane, že zapomenete slovo, není to konec světa 🌎. Naučte se frázi, která Vám poskytne čas na&nbsp;přemýšlení: <strong>„I’m trying to remember the right word…“</strong> nebo <strong>„Let me explain it in a&nbsp;different way…“</strong>. Tím si získáte čas ⏳ a&nbsp;navíc ukážete, že jste schopni reagovat klidně a&nbsp;sebevědomě i&nbsp;pod tlakem 😎.</p> <p>✅<strong>Nacvičte si pohovor</strong> 🎤<br>Nejde jen o&nbsp;to, co máte v&nbsp;hlavě 🧠, ale i&nbsp;o to, jak to dokážete vyjádřit. Zkuste si otázky z&nbsp;ebooku nahlas trénovat. Čím častěji uslyšíte svou vlastní odpověď, tím přirozeněji budete reagovat i&nbsp;pod tlakem 💪.</p> <p>✅<strong>Buďte připraveni na&nbsp;nejdůležitější témata</strong><br>Zaměřte se na&nbsp;témata, která se na&nbsp;pohovorech často objevují – <strong>popis pracovních zkušeností 👷, řešení problémů 🔧, týmová spolupráce 🤝</strong>. Připravte si konkrétní příklady ze své kariéry a&nbsp;zapamatujte si několik klíčových slov pro&nbsp;každý příběh.</p> <p>Nenechte se zastavit strachem z&nbsp;toho, že zapomenete slovo. Připravte se tak, aby Vás nic nepřekvapilo a&nbsp;<strong>získejte svou vysněnou práci!</strong>🎯</p> <p>Pokud se na&nbsp;vaše cesty do&nbsp;zahraničí, nejen na&nbsp;pohovor, chcete připravit důkladněji, můžete si stáhnout některý z&nbsp;mých&nbsp;e-booků, které jsem pro&nbsp;vás připravila.&nbsp;Stačí kliknout a&nbsp;vybrat si ten svůj.</p> <p>Potřebujete zlepšit angličtinu? Jsem tady pro&nbsp;vás i&nbsp;na Facebooku&nbsp;<a href="https://www.facebook.com/profile.php?id=100089955203928" target="_blank" rel="noopener">Angličtina s&nbsp;Katkou</a>&nbsp;nebo na&nbsp;Instagramu&nbsp;<a href="https://www.instagram.com/anglictinaskatkou/" target="_blank" rel="noopener">@anglictinaskatkou</a>&nbsp;nebo můžete zkusit i&nbsp;online kurzy, kde se naučíte angličtinu používat v&nbsp;běžném životě bez obav.</p></div>
+      <h2 style="margin-top:36px">Vyzkoušejte si to</h2>
+      <div class="rows">
+        <a class="row" href="#/pohovor"><span><b>Pohovor na míru</b><p>Připravím vám odpovědi podle vašeho životopisu</p></span><span class="end">&rarr;</span></a>
+        <a class="row" href="#/zdarma"><span><b>Test angličtiny zdarma</b><p>5 minut, zjistíte svou úroveň</p></span><span class="end">&rarr;</span></a>
+        <a class="row" href="#/rezervace"><span><b>Online konzultace zdarma</b><p>20 minut, poradím, co vám stačí</p></span><span class="end">&rarr;</span></a>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="page" data-page="clanek-4">
+  <div class="page-head"><div class="wrap">
+    <p class="small"><a href="#/blog">← Zpět na blog</a></p>
+    <p class="eyebrow">Blog &middot; 8. července 2024</p>
+    <h1>Zpožděný let nebo ztracené zavazadlo?</h1>
+  </div></div>
+  <section>
+    <div class="wrap">
+      <div class="article"><p>Řešili jste někdy na&nbsp;dovolené zpoždění letu – <strong>delay</strong> nebo ztrátu zavazadla –<strong> lost luggage/ baggage/ bag</strong>?</p> <p>Asi jedna z&nbsp;nočních můr každého cestovatele. A&nbsp;to nejen pro&nbsp;ty, kteří angličtinu nezvládají levou zadní. Pokud dorazíte do&nbsp;dovolenkové destinace a&nbsp;neovládáte cizí jazyk a&nbsp;musíte hned řešit ztrátu zavazadla, tak to není úplně lehké. Rozhodla jsem se pro&nbsp;vás připravit několik užitečných otázek, v&nbsp;případě, že byste museli řešit tuto nenadálou situaci.</p> <p>Nejprve si zopakujeme pár důležitých slovíček, ve&nbsp;kterých se často chybuje 😊 jako že <strong>arrivals</strong> jsou přílety a&nbsp;<strong>departures</strong> jsou odlety 😊.</p> <p>Jakmile v&nbsp;hale, kde čekáte na&nbsp;svůj let, uvidíte <strong>open gate</strong> &#8211; brána otevřena – znamená to, že se můžete řadit do&nbsp;fronty mezi první nedočkavce. 😊 Pokud svítí na&nbsp;tabuli – <strong>boarding</strong> – znamená to, že se „naloďujete“ na&nbsp;palubu &#8211; <strong>board</strong> a&nbsp;můžete si jít sednou na&nbsp;své místo v&nbsp;letadle &#8211; <strong>seat</strong>. Většinou vás vítají <strong>„Welcome on board“</strong> – „Vítejte na&nbsp;palubě“ 😊 A&nbsp;letuška – <strong>flight attendant</strong> po&nbsp;vás bude chtít palubní lístek – <strong>boarding pass/card.</strong></p> <p>Bohužel se na&nbsp;tabuli u&nbsp;odletů může objevit i&nbsp;<strong>delayed</strong> – zpožděn nebo <strong>cancelled</strong> – zrušen. Pak se vám mohou hodit otázky jako <strong>„Why is the flight delayed?“</strong> &#8211; Proč je let zpožděn? nebo <strong>„How long is the delay?“</strong> – Jak dlouho bude zpoždění trvat?</p> <p>Může se stát, že s&nbsp;letem nebude problém, ale nedorazí vaše zavazadla. A&nbsp;tady začíná dobrodružná mise u&nbsp;výdeje zavazadel – <strong>baggage reclaim</strong>. Tady se bude hodit: <strong>„My luggage is missing. Can you help me?“</strong> Moje zavazadlo je ztracené. Můžete mi pomoci? nebo <strong>„How do&nbsp;I&nbsp;report a&nbsp;lost bag?“</strong> Jak mohu nahlásit ztracené zavazadlo?</p> <p>Zde budete muset vyplnit formulář, napsat číslo letu – <strong>flight number</strong>. Popsat vaše zavazadlo – velikost – <strong>size</strong>, barvu &#8211; <strong>colour</strong>. Nahlásit věci, které byli v&nbsp;kufru – osobní věci – <strong>personal</strong> <strong>belongings</strong>. Nahlásit adresu vašeho ubytování – <strong>hotel address/ accommodation</strong>. A&nbsp;také se bude určitě hodit otázka &#8211; <strong>„When will I&nbsp;get my luggage back?“</strong> Kdy budu mít zavazadlo zpět? a&nbsp;<strong>„Can you deliver my luggage to my hotel?“</strong> Můžete mi doručit zavazadlo do&nbsp;hotelu? <br></p> <p>Pro příště bude možná jistější mít důležité věci u&nbsp;sebe v&nbsp;příručním zavazadle – <strong>hand luggage,</strong> které budete mít u&nbsp;sebe v&nbsp;<strong>overhead locker </strong>– skříňka nad hlavou na&nbsp;zavazadla.</p> <p>Budeme si držet palce, abyste tyto věty měly uložené jen pro&nbsp;jistotu a&nbsp;dovolená dopadla podle vašich představ a&nbsp;bez zbytečných zádrhelů.<br>A tak, milí cestovatelé, až vyrazíte do&nbsp;neznáma, nezapomeňte na&nbsp;svého nejlepšího přítele – angličtinu!</p> <p>Pár otázek na&nbsp;toto téma tady pro&nbsp;vás mám:<br><strong>Why is the flight delayed?</strong> Proč je let zpožděn?<br><strong>How long is the delay?</strong> Jak dlouho bude trvat zpoždění?<br><strong>What time will the flight leave?</strong> Kdy let odletí?<br><strong>Can I&nbsp;change my flight to another day?</strong> Mohu změnit svůj let na&nbsp;jiný den?<br><strong>My luggage is missing. Can you help me?</strong> Moje zavazadlo je ztraceno. Můžete mi pomoci?<br><strong>How do&nbsp;I&nbsp;report a&nbsp;lost bag?</strong> Jak mohu nahlásit ztracené zavazadlo?<br><strong>When will I&nbsp;get my luggage back?</strong> Kdy dostanu mé zavazadlo zpátky?<br>Jestli si chcete procvičit slovíčka na&nbsp;toto téma, přikládám <a href="https://quizlet.com/cz/962723322/delayed-flight_lost-luggage-flash-cards/?new" target="_blank" rel="noopener">odkaz zde</a>.</p> <p><strong>Pokud se na&nbsp;tuto situaci chcete připravit důkladněji</strong>, můžete si stáhnout <strong>ebook &#8211;</strong> <strong>Delayed Flight or Lost Luggage</strong>, který jsem pro&nbsp;vás na&nbsp;toto téma připravila. </p> <p>Potřebujete zlepšit angličtinu? Jsem tady pro&nbsp;vás i&nbsp;na Facebooku <a href="https://www.facebook.com/profile.php?id=100089955203928" target="_blank" rel="noopener">Angličtina s&nbsp;Katkou</a> nebo na&nbsp;Instagramu <a href="https://www.instagram.com/anglictinaskatkou/" target="_blank" rel="noopener">@anglictinaskatkou</a> nebo můžete zkusit i&nbsp;online kurzy, kde se naučíte angličtinu používat v&nbsp;běžném životě bez obav.</p></div>
+      <h2 style="margin-top:36px">Vyzkoušejte si to</h2>
+      <div class="rows">
+        <a class="row" href="https://jakubsmolek.github.io/quizlet-airport/" target="_blank" rel="noopener"><span><b>Cvičení: Na letišti</b><p>30 slovíček v telefonu</p></span><span class="end">&rarr;</span></a>
+        <a class="row" href="#/zdarma"><span><b>Test angličtiny zdarma</b><p>5 minut, zjistíte svou úroveň</p></span><span class="end">&rarr;</span></a>
+        <a class="row" href="#/rezervace"><span><b>Online konzultace zdarma</b><p>20 minut, poradím, co vám stačí</p></span><span class="end">&rarr;</span></a>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="page" data-page="clanek-5">
+  <div class="page-head"><div class="wrap">
+    <p class="small"><a href="#/blog">← Zpět na blog</a></p>
+    <p class="eyebrow">Blog &middot; 28. května 2024</p>
+    <h1>Transport aneb cestujeme na&nbsp;dovolené</h1>
+  </div></div>
+  <section>
+    <div class="wrap">
+      <div class="article"><p>Chystáte se vyrazit na&nbsp;dovolenou? Letecky – <strong>by plane</strong>, vlakem – <strong>by train</strong> nebo autem – <strong>by car</strong> nebo? 😊</p> <p>Pokud cestujete na&nbsp;nějaký ostrov, můžete se tam dostat nejen letadlem – <strong>by plane</strong>, ale i&nbsp;lodí – <strong>by</strong> <strong>boat/ship</strong> nebo trajektem – <strong>by ferry</strong>. V&nbsp;případě krásného počasí a&nbsp;bez mořské nemoci, úžasný zážitek. V&nbsp;případě, že vás cestou potká bouře na&nbsp;moři, je to také nezapomenutelný zážitek, ale nebudete si ho chtít zopakovat. Vím, o&nbsp;čem mluvím. :o)</p> <p>Cestujete vlakem – <strong>by train</strong>? Tak dobrodružství už začíná na&nbsp;nádraží – <strong>railway station</strong>. Pro&nbsp;někoho už je výzva najít správné nástupiště – <strong>platform</strong> a&nbsp;mít platný lístek – <strong>ticket</strong>.</p> <p>Pokud chcete poznávat krásy světa nebo se vydat do&nbsp;víru velkoměsta, můžete použít nějaký druh místní dopravy – <strong>transport</strong> nebo si objednat <strong>taxi</strong>.</p> <p>Když chcete cestovat po&nbsp;vlastní ose, tak si můžete pronajmout auto – <strong>rent a&nbsp;car</strong> nebo jet hromadnou dopravou &#8211; <strong>public transport</strong>. Někde v exotice můžete vyrazit poznávat svět v&nbsp;tuk-tuku nebo na&nbsp;skútru.</p> <p>Je pravda, že místní mají někdy uvolněnější pravidla než bychom si troufli my, ale je z&nbsp;toho alespoň hezká fotka :o)</p> <p>Pokud si budete půjčovat skutr &#8211; <strong>scooter</strong>, budete mít nejspíš novou kamarádku helmu – <strong>helmet</strong>. Jinak by vám někde mohla hrozit pokuta – <strong>fine</strong>. A&nbsp;také bude zajímavé zastavit se na&nbsp;čerpací stanici – <strong>petrol station</strong> 😊</p> <p>A tak, milí cestovatelé, až vyrazíte do&nbsp;neznáma, nezapomeňte na&nbsp;svého nejlepšího přítele – angličtinu!</p> <p>Pár slovíček na&nbsp;téma doprava &#8211; <strong>transport</strong> tady pro&nbsp;vás mám.<br>Ferry – trajekt<br>Platform – nástupiště<br>Ticket – lístek, jízdenka<br>Fine – pokuta<br>Petrol station – čerpací stanice<br>Public transport &#8211; MHD<br>Seat belt – bezpečnostní pás<br>Speed limit – povolená rychlost<br>Pokud si chcete procvičit více slovíček na&nbsp;toto téma, přikládám zde odkaz <a href="https://bit.ly/transport_match" target="_blank" rel="noopener">https://bit.ly/transport_match</a>.</p> <p>Potřebujete zlepšit angličtinu? Jsem tady pro&nbsp;vás a&nbsp;se mnou i&nbsp;online kurzy, kde se naučíte angličtinu používat v&nbsp;běžném životě bez obav.</p></div>
+      <h2 style="margin-top:36px">Vyzkoušejte si to</h2>
+      <div class="rows">
+        <a class="row" href="https://jakubsmolek.github.io/quizlet-airport/" target="_blank" rel="noopener"><span><b>Cvičení: Na letišti</b><p>30 slovíček v telefonu</p></span><span class="end">&rarr;</span></a>
+        <a class="row" href="#/zdarma"><span><b>Test angličtiny zdarma</b><p>5 minut, zjistíte svou úroveň</p></span><span class="end">&rarr;</span></a>
+        <a class="row" href="#/rezervace"><span><b>Online konzultace zdarma</b><p>20 minut, poradím, co vám stačí</p></span><span class="end">&rarr;</span></a>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="page" data-page="clanek-6">
+  <div class="page-head"><div class="wrap">
+    <p class="small"><a href="#/blog">← Zpět na blog</a></p>
+    <p class="eyebrow">Blog &middot; 20. dubna 2024</p>
+    <h1>Předložky v&nbsp;angličtině: At, in, on &#8211; kdo se v&nbsp;tom má vyznat?</h1>
+  </div></div>
+  <section>
+    <div class="wrap">
+      <div class="article"><p>Ve světě angličtiny jsou předložky jako malé, ale rozhodně ne neškodné pasti, do&nbsp;kterých se mnozí často zamotají. Zvláště pro&nbsp;ty, kteří nemluví tolik anglicky, může být používání předložek jako cesta v&nbsp;labyrintu. Ale nebojte se, nejste v&nbsp;tom sami! Předložky <strong>&#8222;at&#8220;</strong>, <strong>&#8222;in&#8220;</strong> a&nbsp;<strong>&#8222;on&#8220;</strong> je trojice, která způsobuje zmatky i&nbsp;těm zkušenějším uživatelům angličtiny.</p> <p>Pojďme se podívat na&nbsp;několik příkladů, jak tyto předložky používat anglickém jazyce:</p> <p><strong>&#8222;At&#8220;</strong> &#8211; se v&nbsp;angličtině nejčastěji používá k&nbsp;určení konkrétního místa nebo času. Například: <strong>&#8222;I will meet you at the café at 3 p.m.&#8220;</strong> &#8211; Sejdeme se ve&nbsp;tři v kavárně. Rozhodně je dobré si zapamatovat, že u&nbsp;sdělení času vždycky používáme předložku <strong><strong>&#8222;at&#8220;</strong></strong>. Takže je jedno jestli se potkáme <strong>&#8222;at 10 a.m.&#8220;</strong> &#8211; v&nbsp;10 hodin dopoledne nebo <strong>&#8222;at 2 p.m.&#8220;</strong> &#8211; ve&nbsp;2 hodiny odpoledne, vždycky tam bude předložka <strong><strong><strong>&#8222;</strong>at&#8220;</strong></strong>. A&nbsp;pozor! <strong>&#8222;At&#8220;</strong> také používáme pro&nbsp;určení činnosti, jako například <strong>&#8222;I am good at math.&#8220;</strong>&#8211; Jsem dobrá v&nbsp;matematice. <strong>&#8222;She is good at playing the piano.&#8220; </strong>&#8211; Je dobrá ve&nbsp;hře na&nbsp;piano.</p> <p><strong>&#8222;In&#8220;</strong> &#8211; se používá pro&nbsp;vyjádření umístění nebo prostoru, ale také pro&nbsp;časová období. Například: <strong>&#8222;She is in the kitchen.&#8220;</strong>&#8211; Ona je v&nbsp;kuchyni. nebo <strong>&#8222;I will call you in the morning.&#8220;</strong> &#8211; Zavolám ti ráno. Pouze když budu volat v&nbsp;noci, tak bude <strong>&#8222;at night&#8220;<strong>.</strong></strong> Dále se <strong>&#8222;in&#8220;</strong> používá u&nbsp;měsíců, roků a&nbsp;ročních období &#8211; <strong>&#8222;in July&#8220; </strong>&#8211; v&nbsp;červenci, <strong>&#8222;in 2024&#8220;</strong> &#8211; v&nbsp;roce 2024, <strong>&#8222;in the summer&#8220;</strong> &#8211; v&nbsp;létě.</p> <p><strong>&#8222;On&#8220;</strong> &#8211; tato předložka se používá pro&nbsp;vyjádření, že je něco na&nbsp;povrchu nebo pro&nbsp;vyjádření určitého dne v&nbsp;týdnu nebo data. Například: <strong>&#8222;The book is on the table.&#8220;</strong>&#8211; Kniha je na&nbsp;stole. nebo <strong>&#8222;We will have a&nbsp;meeting on 24th April.&#8220;</strong>&#8211; Budeme mít schůzku 24. dubna. nebo <strong>&#8222;I will see you on Monday.&#8220;</strong> &#8211; Uvidíme se v&nbsp;pondělí. Pozor! <strong>&#8222;On&#8220; </strong>se také používá pro&nbsp;vyjádření určitých událostí nebo situací, jako například <strong>&#8222;I am on holiday.&#8220;</strong>&#8211; Jsem na dovolené.</p> <p>Ať už je vaše cesta s&nbsp;anglickými předložkami jakákoli, buďte trpěliví a&nbsp;nebojte se experimentovat. Vždycky je lepší udělat chybu, než se zbytečně stresovat nad tím, že si nedokážete zapamatovat každé pravidlo.</p> <p>Pokud jste dočetli až sem, tak <strong>mám pro&nbsp;Vás dárek</strong> 🎁. Chtěli byste se předložkami zabývat více do&nbsp;hloubky? Připravila jsem pro&nbsp;Vás ebook AT/IN/ON Prepositions. Pokud do&nbsp;objednávky u&nbsp;tohoto ebooku zadáte slevový kód <strong>ATINON</strong>, získáte tento ebook za&nbsp;výhodnější cenu.😊 Stačí kliknout a&nbsp;už můžete studovat. 😊</p> <p>Pár slovíček na&nbsp;procvičení <strong>at, in, on</strong> pro&nbsp;Vás tady mám:<br>at home &#8211; doma<br>on 21st March &#8211; 21.března<br>at work &#8211; v&nbsp;práci<br>in a&nbsp;shop &#8211; v&nbsp;obchodě<br>at the airport &#8211; na&nbsp;letišti<br>on a&nbsp;plane &#8211; v&nbsp;letadle<br>in a&nbsp;car &#8211; v&nbsp;autě<br>at the weekend &#8211; o&nbsp;víkendu<br>on the balcony &#8211; na&nbsp;balkóně<br>in the afternoon &#8211; odpoledne</p> <p>Pokud si chcete procvičit více slovíček, níže přikládám odkaz <a href="https://bit.ly/At_In_On_Quizlet" target="_blank" rel="noopener">https://bit.ly/At_In_On_Quizlet</a></p> <p>Potřebujete zlepšit angličtinu? Jsem tady pro&nbsp;vás a&nbsp;se mnou i&nbsp;online kurzy, kde se naučíte angličtinu používat v&nbsp;běžném životě bez obav.</p></div>
+      <h2 style="margin-top:36px">Vyzkoušejte si to</h2>
+      <div class="rows">
+        <a class="row" href="https://jakubsmolek.github.io/anglictina-predlozky/predlozky-at-in-on.html" target="_blank" rel="noopener"><span><b>Cvičení: Předložky AT / IN / ON</b><p>36 vět s vysvětlením</p></span><span class="end">&rarr;</span></a>
+        <a class="row" href="#/zdarma"><span><b>Test angličtiny zdarma</b><p>5 minut, zjistíte svou úroveň</p></span><span class="end">&rarr;</span></a>
+        <a class="row" href="#/rezervace"><span><b>Online konzultace zdarma</b><p>20 minut, poradím, co vám stačí</p></span><span class="end">&rarr;</span></a>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="page" data-page="clanek-7">
+  <div class="page-head"><div class="wrap">
+    <p class="small"><a href="#/blog">← Zpět na blog</a></p>
+    <p class="eyebrow">Blog &middot; 28. března 2024</p>
+    <h1>Money, money, money</h1>
+  </div></div>
+  <section>
+    <div class="wrap">
+      <div class="article"><p>Cestování je skvělé, ale co když přijde čas platit? 🤔 Chcete si na&nbsp;cestách koupit kafe, zaplatit v&nbsp;restauraci nebo si domů přivézt suvenýry? 💳🛍️ Bez správných frází o&nbsp;penězích to půjde těžko! 😅 Typická otázka je <strong>„How much does it cost?“</strong>– Kolik to stojí? I&nbsp;když v&nbsp;praxi si vystačíte jen s&nbsp;<strong>„How much?“</strong>– Kolik? 😉</p> <p>Po příjezdu potřebujete vědět, kde je směnárna &#8211; <strong>„exchange“</strong>. Také se hodí vědět, že<strong> „exchange rate“</strong> je směnný kurz. Kde je nejbližší bankomat? <strong>„Where is the nearest ATM?“</strong> A&nbsp;že <strong>„take out“</strong> &#8211; je vybrat peníze z&nbsp;bankomatu. Nebo <strong>„withdrawal“</strong> je výběr peněz, <strong>„overdraft“</strong> je přečerpání účtu a&nbsp;<strong>„fee“</strong> &#8211; poplatek. Tak pozor, ať nepřečerpáte svůj <strong>„budget“</strong> &#8211; rozpočet. 😊</p> <p>Při placení v&nbsp;hotelu či v restauraci se hodí: <strong>„Can we get the bill, please?“</strong> Mohu dostat účet, prosím? <strong>„Can we split the bill, please?&#8220;</strong> Můžeme rozdělit účet? anebo <strong>„In cash or by credit card?“</strong> V&nbsp;hotovosti nebo kartou? 😊 A&nbsp;pozor může přijít i&nbsp;otázka <strong>„Which currency would you like to pay?“ </strong>V jaké měně chcete platit?</p> <p>Ať už jste na&nbsp;luxusní dovolené, kde utratíte celý svůj plat &#8211; <strong>„salary“</strong>, nebo vaše úspory &#8211; <strong>„savings“</strong> anebo na&nbsp;pracovní cestě v zahraničí, slovní zásoba na&nbsp;peníze &#8211; <strong>„money“</strong> je prostě k&nbsp;nezaplacení 😊<br>Pár slovíček tady pro&nbsp;vás mám.<br>cash machine (ATM) – bankomat<br>in cash – v&nbsp;hotovosti<br>by credit card – kartou<br>bank account – bankovní účet<br>tax – daň<br>take out – vybrat peníze z&nbsp;bankomatu<br>bill – účet, účtenka<br>save &#8211; šetřit</p> <p>Pokud si chcete procvičit více slovíček, níže přikládám odkaz <a href="https://bit.ly/money_quizlet" target="_blank" rel="noopener">https://bit.ly/money_quizlet</a></p> <p>Potřebujete zlepšit angličtinu? Jsem tady pro&nbsp;vás a&nbsp;se mnou i&nbsp;online kurzy, kde se naučíte angličtinu používat v&nbsp;běžném životě bez obav.</p></div>
+      <h2 style="margin-top:36px">Vyzkoušejte si to</h2>
+      <div class="rows">
+        <a class="row" href="#/zdarma"><span><b>Test angličtiny zdarma</b><p>5 minut, zjistíte svou úroveň</p></span><span class="end">&rarr;</span></a>
+        <a class="row" href="#/rezervace"><span><b>Online konzultace zdarma</b><p>20 minut, poradím, co vám stačí</p></span><span class="end">&rarr;</span></a>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="page" data-page="clanek-8">
+  <div class="page-head"><div class="wrap">
+    <p class="small"><a href="#/blog">← Zpět na blog</a></p>
+    <p class="eyebrow">Blog &middot; 17. února 2024</p>
+    <h1>Fresh food market &#8211; chuť exotiky</h1>
+  </div></div>
+  <section>
+    <div class="wrap">
+      <div class="article"><p>Když se vydáte do&nbsp;cizích krajů, nezapomeňte na&nbsp;výlety do&nbsp;světa pochoutek! Nejenže můžete obdivovat památky a&nbsp;krásy přírody, ale také si pochutnat v&nbsp;místních restauracích. Nebo začněte den s&nbsp;exotickým shakem &#8211; třeba banánovým, mangovým nebo z&nbsp;dračího ovoce &#8211; <strong>dragon fruit</strong>.</p> <p>Poté se vydejte do&nbsp;malých obchůdků, kde najdete všechno od koření po&nbsp;čaje, jako je skořice &#8211; <strong>cinnamon</strong>, kurkuma &#8211; <strong>turmeric</strong>, <strong>chilli </strong>nebo modrý čaj &#8211; <strong>butterfly pea tea</strong>. </p> <p>Pokud máte možnost, navštivte místní <strong>fresh food</strong> trhy, kde se můžete nechat unášet vůněmi a&nbsp;ochutnávat tropické plody, zeleninu a&nbsp;koření. Možná objevíte něco jako <strong>rose apple</strong> nebo <strong>stone apple</strong> či <strong>mangosteen</strong> &#8211; jsou to lahůdky z exotických krajů! Ovšem i&nbsp;banány jsou tady zajímavé. 🙂</p> <p>Jestli chcete trochu procvičit svou angličtinu, nezapomeňte zapracovat i&nbsp;na slovíčkách. Pár jich tady na&nbsp;téma <strong>Fruit, vegetables and herbs</strong> pro&nbsp;vás mám.<br>Apple &#8211; jablko<br>Pear – hruška<br>Strawberry – jahoda<br>Garlic &#8211; česnek<br>Onion – cibule<br>Cinnamon – skořice<br>Dill – kopr<br>Lemon – citron<br>Pineapple &#8211; ananas<br>Dragon fruit &#8211; dračí ovoce<br>Pokud si chcete procvičit více slovíček. Níže přikládám odkaz. <a href="https://bit.ly/fruit_vegetables_quizlet" target="_blank" rel="noopener">https://bit.ly/fruit_vegetables_quizlet</a></p> <p>Potřebujete zlepšit angličtinu? Jsem tady pro&nbsp;vás a&nbsp;se mnou i&nbsp;online kurzy, kde se naučíte angličtinu používat v&nbsp;běžném životě bez obav.</p></div>
+      <h2 style="margin-top:36px">Vyzkoušejte si to</h2>
+      <div class="rows">
+        <a class="row" href="#/zdarma"><span><b>Test angličtiny zdarma</b><p>5 minut, zjistíte svou úroveň</p></span><span class="end">&rarr;</span></a>
+        <a class="row" href="#/rezervace"><span><b>Online konzultace zdarma</b><p>20 minut, poradím, co vám stačí</p></span><span class="end">&rarr;</span></a>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="page" data-page="clanek-9">
+  <div class="page-head"><div class="wrap">
+    <p class="small"><a href="#/blog">← Zpět na blog</a></p>
+    <p class="eyebrow">Blog &middot; 16. února 2024</p>
+    <h1>Are there any bones? aneb v&nbsp;restauraci na&nbsp;dovolené</h1>
+  </div></div>
+  <section>
+    <div class="wrap">
+      <div class="article"><p>Místo přípitku <strong>Cheers!</strong> (Na zdraví!) zvolala Chairs! (Židle!) A&nbsp;bylo veselo. 🙂 I&nbsp;takhle může vypadat vaše historka z&nbsp;dovolené.</p> <p>Hned u&nbsp;snídaně v hotelu začíná vaše první „jazyková“ mise v&nbsp;případě, že neumíte dost anglických slovíček. V&nbsp;některých hotelích obratně prokličkujete mezi obsluhou bez stresu, že se vás někdo zeptá: <strong>„Tea or coffee?“</strong> nebo <strong>„Table for two or four?“</strong> Někde budete muset improvizovat jako jeden student, který si objednával bull eye. (volské oko) Dnes už ví, že <strong>fried egg</strong> bude jistější. 🙂</p> <p>Ale může to být i&nbsp;opačně. Na dovolené jsem komunikovala plynně anglicky, nicméně obsluha restaurace ne. Když nám číšník přinesl připravenou porci ryby a&nbsp;já jsem se zeptala, jestli v&nbsp;té rybě jsou nějaké kosti: <strong>„Are there any bones?“</strong> Tak se na&nbsp;mne udiveně podíval a&nbsp;řekl: <strong>„Do you speak English?“</strong> 😊</p> <p>Dovolená v&nbsp;zahraničí může být vzrušující, ale i&nbsp;skutečnou výzvou, zejména pokud neovládáte cizí jazyk.<br>Připravila jsem pro&nbsp;vás <strong>pár slovíček, která by se</strong> vám v&nbsp;hotelu či v&nbsp;restauraci v zahraničí <strong>mohla hodit</strong>.<br>Full board – plná penze<br>Half board – polopenze<br>Breakfast &#8211; snídaně<br>Scrambled eggs – míchaná vajíčka<br>Fried eggs – smažená vajíčka<br>Pancake – palačinka<br>With milk – s&nbsp;mlékem<br>Without sugar – bez cukru<br>Take away – jídlo s&nbsp;sebou<br>Prawns – krevety<br>Napkin &#8211; ubrousek</p> <p>Chcete se naučit další slovíčka? Níže přikládám odkaz na&nbsp;procvičení více slovíček. <a href="https://bit.ly/restaurant_quizlet" target="_blank" rel="noopener">https://bit.ly/restaurant_quizlet</a></p> <p>Kompletní slovní zásobu na&nbsp;toto téma najdete v ebooku Food and restaurant 🙂 včetně poslechu a&nbsp;testu 🙂</p> <p>Pokud si <strong>chcete zlepšit vaše znalosti angličtiny</strong>, jsem tu pro&nbsp;vás a&nbsp;také spousta slovíček a&nbsp;cvičení. Samozřejmě vše procvičíme při konverzaci nebo v&nbsp;online kurzu, abyste zvládli běžně komunikovat v&nbsp;angličtině.</p></div>
+      <h2 style="margin-top:36px">Vyzkoušejte si to</h2>
+      <div class="rows">
+        <a class="row" href="#/zdarma"><span><b>Test angličtiny zdarma</b><p>5 minut, zjistíte svou úroveň</p></span><span class="end">&rarr;</span></a>
+        <a class="row" href="#/rezervace"><span><b>Online konzultace zdarma</b><p>20 minut, poradím, co vám stačí</p></span><span class="end">&rarr;</span></a>
+      </div>
+    </div>
+  </section>
+</div>
+<!-- Závěrečná výzva na všech stránkách -->
+<section class="final center" id="final">
+  <div class="wrap">
+    <h2>Začněte testem zdarma</h2>
+    <p class="lead">Za 5 minut víte, kde jste a co se učit jako první. Nebo si rovnou domluvte konzultaci.</p>
+    <div class="actions">
+      <a class="btn btn-primary" href="#/zdarma">Udělat si test</a>
+      <a class="btn btn-secondary" href="#/rezervace">Domluvit konzultaci</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="links">
+      <a href="#/kurzy">Lekce a konzultace</a>
+      <a href="#/skupinky">Skupinky</a>
+      <a href="#/obchod">Obchod</a>   <a href="#/zdarma">Test zdarma</a> <a href="#/o-mne">O mně</a>
+      <a href="#/blog">Blog</a>
+      <a href="https://www.instagram.com/anglictinaskatkou/" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://www.facebook.com/profile.php?id=100089955203928" target="_blank" rel="noopener">Facebook</a>
+      <a href="https://anglictinaskatkou.cz/obchodni-podminky/" target="_blank" rel="noopener">Obchodní podmínky</a>
+      <a href="https://anglictinaskatkou.cz/ochrana-osobnich-udaju/" target="_blank" rel="noopener">Ochrana osobních údajů</a>
+    </div>
+    © 2026 Angličtina s Katkou
+  </div>
+</footer>
+
+<div class="sticky-cta" id="sticky">
+  <a class="btn btn-primary btn-block" href="#/zdarma">Zjistit svou úroveň zdarma</a>
+</div>
+
+<script>
+  // Přepínání stránek podle adresy za # (např. #/kurzy)
+  const pages = document.querySelectorAll('.page');
+  const navLinks = document.querySelectorAll('nav a, .menu a');
+  const menuBtn = document.getElementById('menu-btn');
+  const menu = document.getElementById('menu');
+
+  function show() {
+    let name = location.hash.replace(/^#\/?/, '');
+    if (![...pages].some(p => p.dataset.page === name)) name = '';
+    pages.forEach(p => p.classList.toggle('on', p.dataset.page === name));
+    navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#/' + name));
+    const booking = name === 'rezervace';
+    document.getElementById('final').style.display = booking ? 'none' : '';
+    document.getElementById('sticky').style.display = booking ? 'none' : '';
+    menu.classList.remove('open');
+    menuBtn.setAttribute('aria-expanded', 'false');
+    window.scrollTo(0, 0);
+  }
+  window.addEventListener('hashchange', show);
+  show();
+
+  menuBtn.addEventListener('click', () => {
+    const open = menu.classList.toggle('open');
+    menuBtn.setAttribute('aria-expanded', String(open));
+  });
+
+  const noteBtn = document.getElementById('toggle-notes');
+  noteBtn.addEventListener('click', () => {
+    const on = document.body.classList.toggle('show-notes');
+    noteBtn.textContent = on ? 'Skrýt poznámky' : 'Zobrazit poznámky';
+  });
+
+  // Čekací listina: v prototypu se nic neodesílá ani neukládá
+  document.getElementById('waitlist').addEventListener('submit', e => {
+    e.preventDefault();
+    document.getElementById('waitlist-msg').textContent = 'Díky! (V prototypu se e-mail nikam neodesílá.)';
+    e.target.reset();
+  });
+
+  // ===== Klub na míru: klikací ukázka (vše jen v prohlížeči) =====
+  (function () {
+    const BANK = {
+      intro:   { t: 'Představte se', tip: 'I\'m from… · I work as… · Nice to meet you.', q: [
+        ['I ___ from Brno.', ['am', 'is', 'are'], 0],
+        ['I work ___ an accountant.', ['as', 'like', 'for'], 0],
+        ['Nice to ___ you.', ['meet', 'know', 'see'], 0]] },
+      small:   { t: 'Small talk', tip: 'How was your weekend? · What do you do? = Čím se živíte?', q: [
+        ['How ___ your weekend?', ['was', 'did', 'were'], 0],
+        ['„How are you?“ Co odpovíte?', ['I\'m fine, thanks. And you?', 'I\'m 35.', 'Yes, I am.'], 0],
+        ['„What do you do?“ se ptá na…', ['vaši práci', 'co děláte právě teď', 'váš koníček'], 0]] },
+      prep:    { t: 'Předložky času AT / IN / ON', tip: 'AT pro přesný čas · ON pro dny a data · IN pro měsíce a roky.', q: [
+        ['See you ___ Monday.', ['on', 'in', 'at'], 0],
+        ['The meeting starts ___ 5 o\'clock.', ['at', 'on', 'in'], 0],
+        ['We go on holiday ___ July.', ['in', 'on', 'at'], 0]] },
+      past:    { t: 'Minulý čas: co se stalo', tip: 'go → went · have → had · Po „did“ je sloveso v základním tvaru.', q: [
+        ['Yesterday I ___ to work by train.', ['went', 'go', 'gone'], 0],
+        ['We ___ dinner at seven.', ['had', 'have', 'haved'], 0],
+        ['Did you ___ the email?', ['send', 'sent', 'sended'], 0]] },
+      ask:     { t: 'Jak se ptát', tip: 'Do you…? · Does she…? · Where do you…?', q: [
+        ['Where ___ you live?', ['do', 'are', 'does'], 0],
+        ['___ she speak English?', ['Does', 'Do', 'Is'], 0],
+        ['What time ___ the meeting start?', ['does', 'do', 'is'], 0]] },
+      phrasal: { t: 'Frázová slovesa', tip: 'pick up = zvednout · put off = odložit · find out = zjistit', q: [
+        ['Can you ___ up the phone?', ['pick', 'take', 'do'], 0],
+        ['Let\'s put ___ the meeting until Friday.', ['off', 'out', 'away'], 0],
+        ['I need to find ___ the price.', ['out', 'off', 'up'], 0]] },
+      email:   { t: 'E-maily', tip: 'I am writing to… · Please find attached… · Kind regards', q: [
+        ['I am writing to ___ about your offer.', ['enquire', 'question', 'wonder'], 0],
+        ['Jak zakončíte formální e-mail?', ['Kind regards', 'Cheers', 'Bye'], 0],
+        ['Please find ___ the report.', ['attached', 'attach', 'attaching'], 0]] },
+      meet:    { t: 'Porady', tip: 'I see your point, but… · I\'m not sure I agree. · Could you repeat that?', q: [
+        ['I see your point, ___ I think we need more time.', ['but', 'so', 'because'], 0],
+        ['Jak zdvořile nesouhlasit?', ['I\'m not sure I agree.', 'You\'re wrong.', 'No way.'], 0],
+        ['Could you ___ that, please?', ['repeat', 'tell', 'speak'], 0]] },
+      phone:   { t: 'Telefon', tip: 'Could I speak to…? · I\'ll put you through. · Can I leave a message?', q: [
+        ['Could I ___ to Mr Novak, please?', ['speak', 'say', 'tell'], 0],
+        ['One moment, I\'ll ___ you through.', ['put', 'give', 'take'], 0],
+        ['Can I ___ a message?', ['leave', 'let', 'put'], 0]] },
+      airport: { t: 'Letiště', tip: 'check-in desk · My luggage is missing. · The flight is delayed.', q: [
+        ['Where is the ___ desk?', ['check-in', 'checking', 'check up'], 0],
+        ['My luggage is ___.', ['missing', 'lose', 'away'], 0],
+        ['Is the flight ___?', ['delayed', 'postponing', 'late off'], 0]] },
+      hotel:   { t: 'Hotel', tip: 'I have a reservation. · It doesn\'t work. · What time is check-out?', q: [
+        ['I have a ___ for two nights.', ['reservation', 'reserve', 'reserving'], 0],
+        ['The air conditioning doesn\'t ___.', ['work', 'go', 'make'], 0],
+        ['What time is ___?', ['check-out', 'go out', 'the leave'], 0]] },
+      food:    { t: 'Restaurace', tip: 'I\'ll have… · I\'m allergic to… · Could we have the bill?', q: [
+        ['Could we have the ___, please?', ['bill', 'account', 'pay'], 0],
+        ['I\'m ___ to nuts.', ['allergic', 'allergy', 'allergical'], 0],
+        ['I\'ll ___ the soup, please.', ['have', 'having', 'eat me'], 0]] },
+      opinion: { t: 'Názory', tip: 'In my opinion… · I totally agree. · What do you think about…?', q: [
+        ['In my ___, it\'s a good idea.', ['opinion', 'meaning', 'think'], 0],
+        ['I ___ agree with you.', ['totally', 'very', 'much'], 0],
+        ['What do you think ___ it?', ['about', 'for', 'at'], 0]] },
+      story:   { t: 'Vyprávění zážitků', tip: 'First… then… finally… · While I was waiting, it started to rain.', q: [
+        ['While I ___ waiting, it started to rain.', ['was', 'were', 'am'], 0],
+        ['First we got lost, then it rained, and ___ we got home.', ['finally', 'at last time', 'in final'], 0],
+        ['It was the ___ day of my life.', ['best', 'goodest', 'most good'], 0]] }
+    };
+    const PLANS = {
+      work:   ['intro', 'small', 'ask', 'email', 'phone', 'meet', 'prep', 'past', 'phrasal', 'opinion'],
+      travel: ['intro', 'ask', 'airport', 'hotel', 'food', 'prep', 'past', 'small', 'phrasal', 'story'],
+      talk:   ['intro', 'small', 'ask', 'past', 'story', 'opinion', 'phrasal', 'prep', 'meet', 'food']
+    };
+    const GOALS = { work: 'Práce', travel: 'Cesty', talk: 'Konverzace' };
+    const KEY = 'katka-klub-demo';
+    const $ = id => document.getElementById(id);
+    if (!$('kd-setup')) return;
+
+    let st = {};
+    try { st = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { st = {}; }
+    const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} };
+    const view = v => ['kd-setup', 'kd-plan', 'kd-module'].forEach(id => { $(id).hidden = id !== v; });
+
+    ['kd-goal', 'kd-level'].forEach(id => $(id).addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b) return;
+      $(id).querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    }));
+    const picked = id => $(id).querySelector('[aria-pressed="true"]').dataset.v;
+
+    // Doporučení: nejdřív modul, který nedopadl (0–1 bod), jinak první nesplněný
+    function next() {
+      const plan = PLANS[st.goal];
+      const weak = plan.find(id => st.done[id] !== undefined && st.done[id] <= 1);
+      if (weak) return { id: weak, again: true };
+      const todo = plan.find(id => st.done[id] === undefined);
+      return todo ? { id: todo, again: false } : null;
+    }
+
+    function renderPlan() {
+      const plan = PLANS[st.goal];
+      const n = plan.filter(id => st.done[id] !== undefined).length;
+      const rec = next();
+      $('kd-who').textContent = 'Cíl: ' + GOALS[st.goal] + ' · úroveň ' + st.level;
+      $('kd-bar').style.width = (n * 10) + '%';
+      $('kd-count').textContent = 'Hotovo ' + n + ' z 10 modulů';
+      $('kd-next').innerHTML = !rec
+        ? '<b>Máte hotových všech 10 modulů.</b> V ostré verzi teď přijde nový test, srovnání pokroku a dalších 10 modulů.'
+        : rec.again
+          ? '<b>Doporučuji zopakovat:</b> ' + BANK[rec.id].t + '. Minule to ještě nesedělo, proto se vrací na řadu.'
+          : '<b>Váš další krok:</b> ' + BANK[rec.id].t;
+      $('kd-list').innerHTML = plan.map((id, i) => {
+        const s = st.done[id];
+        const isNext = rec && rec.id === id;
+        let label = 'Čeká', cls = '';
+        if (s !== undefined && s <= 1) { label = 'Zopakovat'; cls = 'again'; }
+        else if (s !== undefined) { label = 'Hotovo ' + s + '/3'; cls = 'done'; }
+        else if (isNext) { label = 'Doporučeno'; cls = 'now'; }
+        const open = s !== undefined || isNext;
+        return '<li><button type="button" data-id="' + id + '"' + (open ? '' : ' disabled') + '><span class="num">' + (i + 1) +
+          '</span><span>' + BANK[id].t + '</span><span class="st ' + cls + '">' + label + '</span></button></li>';
+      }).join('');
+      view('kd-plan');
+    }
+
+    function openModule(id) {
+      const m = BANK[id];
+      const order = PLANS[st.goal].indexOf(id) + 1;
+      $('kd-mnum').textContent = 'Modul ' + order + ' z 10';
+      $('kd-mtitle').textContent = m.t;
+      $('kd-mtip').innerHTML = '<b>Stručně:</b> ' + m.tip;
+      $('kd-result').hidden = true;
+      let answered = 0, score = 0;
+      $('kd-quiz').innerHTML = m.q.map((q, qi) => {
+        // možnosti zamíchat, správná je vždy q[2]
+        const opts = q[1].map((text, i) => ({ text, ok: i === q[2] })).sort(() => Math.random() - 0.5);
+        return '<div class="q"><p>' + (qi + 1) + '. ' + q[0] + '</p><div class="opts">' +
+          opts.map(o => '<button type="button" data-ok="' + (o.ok ? 1 : 0) + '">' + o.text + '</button>').join('') + '</div></div>';
+      }).join('');
+      $('kd-quiz').onclick = e => {
+        const b = e.target.closest('.opts button'); if (!b || b.disabled) return;
+        const group = b.parentElement;
+        group.querySelectorAll('button').forEach(x => { x.disabled = true; if (x.dataset.ok === '1') x.classList.add('ok'); });
+        if (b.dataset.ok === '1') score++; else b.classList.add('bad');
+        if (++answered === m.q.length) {
+          st.done[id] = Math.max(st.done[id] === undefined ? 0 : st.done[id], score);
+          save();
+          const rec = next();
+          const msg = score === 3 ? 'Výborně, 3 ze 3.' : score === 2 ? 'Dobře, 2 ze 3. Projděte si ještě tu jednu chybu.' : 'Tohle ještě chce procvičit (' + score + ' ze 3). Modul se vám vrátí k opakování.';
+          $('kd-result').innerHTML = '<b>' + msg + '</b> ' + (rec ? 'Další doporučení: ' + BANK[rec.id].t + '.' : 'Máte hotový celý plán.');
+          $('kd-result').hidden = false;
+        }
+      };
+      view('kd-module');
+    }
+
+    $('kd-build').addEventListener('click', () => { st = { goal: picked('kd-goal'), level: picked('kd-level'), done: {} }; save(); renderPlan(); });
+    $('kd-list').addEventListener('click', e => { const b = e.target.closest('button'); if (b && !b.disabled) openModule(b.dataset.id); });
+    $('kd-back').addEventListener('click', renderPlan);
+    $('kd-reset').addEventListener('click', () => { st = {}; save(); view('kd-setup'); });
+    $('kd-jump').addEventListener('click', () => setTimeout(() => $('kd-section').scrollIntoView(), 50));
+    $('waitlist-klub').addEventListener('submit', e => {
+      e.preventDefault();
+      $('waitlist-klub-msg').textContent = 'Díky! (V prototypu se e-mail nikam neodesílá.)';
+      e.target.reset();
+    });
+
+    if (st.goal && PLANS[st.goal] && st.done) renderPlan(); else view('kd-setup');
+  })();
+
+  // ===== Verze 4: ukázka košíku a poptávky pro firmy (nic se neodesílá) =====
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-buy]'); if (!b) return;
+    let msg = b.parentElement.querySelector('.buy-note');
+    if (!msg) { msg = document.createElement('p'); msg.className = 'small buy-note'; b.insertAdjacentElement('afterend', msg); }
+    msg.textContent = 'V ostré verzi se tady otevře košík e-shopu. V prototypu se nic nekupuje.';
+  });
+  (function () {
+    const f = document.getElementById('firm-form'); if (!f) return;
+    f.addEventListener('submit', e => {
+      e.preventDefault();
+      document.getElementById('firm-msg').textContent = 'Díky! (V prototypu se poptávka nikam neodesílá.)';
+      f.reset();
+    });
+    document.getElementById('firm-jump').addEventListener('click', () => setTimeout(() => document.getElementById('firm-section').scrollIntoView(), 50));
+  })();
+</script>
+</body>
+</html>
